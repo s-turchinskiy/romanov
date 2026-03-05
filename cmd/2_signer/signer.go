@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"reflect"
 	"sort"
 	"strconv"
 	"strings"
@@ -130,18 +129,17 @@ func CombineResults(in, out chan interface{}) {
 	res := strings.Join(results, "_")
 	out <- res
 }
-
 func stringFromUntypedValue(untypedValue any) (string, error) {
 
 	var data string
 
-	switch untypedValue.(type) {
+	switch valType := untypedValue.(type) {
 	case string:
 		data = untypedValue.(string)
 	case int:
 		data = strconv.Itoa(untypedValue.(int))
 	default:
-		err := fmt.Errorf("unclown type input channel %v", reflect.TypeOf(untypedValue))
+		err := fmt.Errorf("unklown type input channel %v", valType)
 		return "", err
 	}
 
