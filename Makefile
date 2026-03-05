@@ -1,5 +1,5 @@
 test:
-	go test -v -race ./...
+	@go test -v -race ./...
 
 lint:
-	golangci-lint run
+	@golangci-lint run
