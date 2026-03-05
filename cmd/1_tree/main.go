@@ -17,7 +17,7 @@ const (
 
 func main() {
 	out := os.Stdout
-	if !(len(os.Args) == 2 || len(os.Args) == 3) {
+	if len(os.Args) != 2 && len(os.Args) != 3 {
 		panic("usage go run main.go . [-f]")
 	}
 	path := os.Args[1]
@@ -95,7 +95,7 @@ func printItems(out io.Writer, dir string, printFiles bool, shift string, list [
 				newShift = newShift + shiftTopLevel
 			}
 			newShift = newShift + "\t"
-			
+
 			err = printDir(out, fileFullName, printFiles, newShift)
 			if err != nil {
 				return err
