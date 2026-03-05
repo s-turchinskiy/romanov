@@ -41,7 +41,7 @@ func printDir(out io.Writer, dir string, printFiles bool, shift string) error {
 
 	selectionList := selectionFiles(printFiles, list)
 
-	err = printItems(out, dir, printFiles, shift, selectionList, err)
+	err = printItems(out, dir, printFiles, shift, selectionList)
 	if err != nil {
 		return err
 	}
@@ -64,7 +64,7 @@ func selectionFiles(printFiles bool, list []os.DirEntry) []os.DirEntry {
 	return newList
 }
 
-func printItems(out io.Writer, dir string, printFiles bool, shift string, list []os.DirEntry, err error) error {
+func printItems(out io.Writer, dir string, printFiles bool, shift string, list []os.DirEntry) error {
 	lastIndex := len(list) - 1
 	for i, item := range list {
 
@@ -81,7 +81,7 @@ func printItems(out io.Writer, dir string, printFiles bool, shift string, list [
 
 		builder.WriteString(item.Name())
 
-		err = addSizeInfoFirFile(item, &builder, fileFullName)
+		err := addSizeInfoFirFile(item, &builder, fileFullName)
 		if err != nil {
 			return err
 		}
