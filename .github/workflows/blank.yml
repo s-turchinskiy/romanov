@@ -30,4 +30,4 @@ jobs:
         version: latest
 
     - name: Run strict linter
-      uses: golangci/powerman/golangci-lint-strict/tree/main/2.5.0
+      uses: powerman/golangci-lint-strict/tree/main/2.5.0
