@@ -25,9 +25,6 @@ jobs:
       run: make test
 
     - name: Run linter
-      uses: golangci/golangci-lint-action@v9
+      uses: golangci/golangci-lint-action@v8
       with:
         version: latest
-
-    - name: Run strict linter
-      uses: powerman/golangci-lint-strict/tree/main/2.5.0
