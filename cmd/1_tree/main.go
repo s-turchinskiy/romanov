@@ -88,6 +88,9 @@ func printItems(out io.Writer, dir string, printFiles bool, shift string, list [
 
 		builder.WriteString("\n")
 		_, err = out.Write([]byte(builder.String()))
+		if err != nil {
+			return err
+		}
 
 		if item.IsDir() {
 			newShift := shift
