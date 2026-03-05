@@ -28,3 +28,6 @@ jobs:
       uses: golangci/golangci-lint-action@v9
       with:
         version: latest
+
+    - name: Run strict linter
+      uses: golangci/powerman/golangci-lint-strict/tree/main/2.5.0
