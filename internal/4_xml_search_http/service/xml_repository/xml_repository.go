@@ -55,7 +55,9 @@ func (s *XMLService) Users(query, orderField string, orderBy, offset, limit int)
 	if err != nil {
 		return nil, service.NewServiceError(service.InternalError, errors.New("can't open file"))
 	}
-	defer file.Close()
+	defer func() {
+		_ = file.Close()
+	}()
 
 	var clients Clients
 	err = xml.NewDecoder(file).Decode(&clients)
