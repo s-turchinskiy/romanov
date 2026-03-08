@@ -44,7 +44,6 @@ func SingleHash(in, out chan any) {
 	wg := sync.WaitGroup{}
 
 	for untypedValue := range in {
-
 		data, err := stringFromUntypedValue(untypedValue)
 		if err != nil {
 			log.Fatal(err)
@@ -80,7 +79,6 @@ func MultiHash(in, out chan any) {
 	wgForMultiHash := sync.WaitGroup{}
 
 	for untypedValue := range in {
-
 		data, err := stringFromUntypedValue(untypedValue)
 		if err != nil {
 			log.Fatal(err)
