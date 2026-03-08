@@ -82,7 +82,17 @@ func (h *Handler) SearchServer(w http.ResponseWriter, r *http.Request) {
 				return
 
 			case service.BadRequest:
-				http.Error(w, result.err.Error(), http.StatusBadRequest)
+				w.WriteHeader(http.StatusBadRequest)
+				response := models.SearchErrorResponse{
+					Error: result.err.Error(),
+				}
+				bytes, err := json.Marshal(response)
+				if err != nil {
+					http.Error(w, "Unable to marshal response to json", http.StatusInternalServerError)
+					return
+				}
+
+				_, _ = w.Write(bytes)
 				return
 			}
 		}

@@ -12,6 +12,7 @@ import (
 
 type fields struct {
 	AccessToken string
+	URL         string
 }
 
 type testCase struct {
@@ -28,11 +29,16 @@ func TestSearchClient_FindUsers(t *testing.T) {
 		10*time.Second)
 	srv := httptest.NewServer(hndlr)
 
-	for _, tt := range testCases() {
+	hndlrWithWrongFile := handlers.NewHandler(
+		xml_repository.NewXMLService("dataset1.xml"),
+		10*time.Second)
+	srvWithWrongFile := httptest.NewServer(hndlrWithWrongFile)
+
+	for _, tt := range testCases(srv.URL, srvWithWrongFile.URL) {
 		t.Run(tt.name, func(t *testing.T) {
 			clnt := &SearchClient{
 				AccessToken: tt.fields.AccessToken,
-				URL:         srv.URL,
+				URL:         tt.fields.URL,
 			}
 			got, err := clnt.FindUsers(tt.req)
 			if (err != nil) != tt.wantErr {
@@ -46,9 +52,12 @@ func TestSearchClient_FindUsers(t *testing.T) {
 	}
 }
 
-func testCases() []testCase {
+func testCases(url, urlWrong string) []testCase {
 
-	fieldWithAccessToken := fields{AccessToken: "TestToken"}
+	fieldWithAccessToken := fields{
+		AccessToken: "TestToken",
+		URL:         url,
+	}
 
 	var multipleUsersCupidatat = []models.User{
 		{
@@ -117,6 +126,79 @@ func testCases() []testCase {
 				NextPage: true,
 			},
 			wantErr: false,
+		},
+		{
+			name:   "EmptyResponse and 25 maximum",
+			fields: fieldWithAccessToken,
+			req: models.SearchRequest{
+				Query: "some request",
+				Limit: 35,
+			},
+			want: &models.SearchResponse{
+				Users:    nil,
+				NextPage: false,
+			},
+			wantErr: false,
+		},
+		{
+			name:   "wrong limit",
+			fields: fieldWithAccessToken,
+			req: models.SearchRequest{
+				Query: "some request",
+				Limit: -1,
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:   "wrong offset",
+			fields: fieldWithAccessToken,
+			req: models.SearchRequest{
+				Query:  "some request",
+				Offset: -1,
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "StatusUnauthorized",
+			fields:  fields{AccessToken: "", URL: url},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "internal error",
+			fields:  fields{AccessToken: "aa", URL: urlWrong},
+			req:     models.SearchRequest{},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "no url",
+			fields:  fields{},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:   "bad request",
+			fields: fieldWithAccessToken,
+			req: models.SearchRequest{
+				Query:  "some request",
+				Offset: 1000,
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:   "bad request ErrorBadOrderField",
+			fields: fieldWithAccessToken,
+			req: models.SearchRequest{
+				Query:      "some request",
+				OrderField: "wrong",
+				OrderBy:    1,
+			},
+			want:    nil,
+			wantErr: true,
 		},
 	}
 }

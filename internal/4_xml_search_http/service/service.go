@@ -40,7 +40,7 @@ func sortAsc(sortType string, clients []models.User) ([]models.User, error) {
 			return clients[i].Name < clients[j].Name
 		})
 	default:
-		return nil, errors.New("wrong sort_type")
+		return nil, errors.New(models.ErrorBadOrderField)
 	}
 
 	return clients, nil
@@ -63,7 +63,7 @@ func sortDesc(sortType string, clients []models.User) ([]models.User, error) {
 			return clients[i].Name > clients[j].Name
 		})
 	default:
-		return nil, errors.New("wrong sort_type")
+		return nil, errors.New(models.ErrorBadOrderField)
 	}
 
 	return clients, nil

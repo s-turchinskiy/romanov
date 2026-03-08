@@ -16,7 +16,7 @@ import (
 
 var (
 	errTest = errors.New("testing")
-	client  = &http.Client{Timeout: 100 * time.Second}
+	client  = &http.Client{Timeout: time.Second}
 )
 
 type SearchClient struct {
@@ -74,7 +74,7 @@ func (srv *SearchClient) FindUsers(req models.SearchRequest) (*models.SearchResp
 		if err != nil {
 			return nil, fmt.Errorf("cant unpack error json: %s", err)
 		}
-		if errResp.Error == "ErrorBadOrderField" {
+		if errResp.Error == models.ErrorBadOrderField {
 			return nil, fmt.Errorf("OrderFeld %s invalid", req.OrderField)
 		}
 		return nil, fmt.Errorf("unknown bad request error: %s", errResp.Error)
