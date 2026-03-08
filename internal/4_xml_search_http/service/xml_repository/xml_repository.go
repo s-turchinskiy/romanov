@@ -23,8 +23,8 @@ type XMLClient struct {
 	Picture       string `xml:"picture"`
 	Age           int    `xml:"age"`
 	EyeColor      string `xml:"eyeColor"`
-	FirstName     string `xml:"first_name"`
-	LastName      string `xml:"last_name"`
+	FirstName     string `xml:"first_name"` //nolint:tagliatelle
+	LastName      string `xml:"last_name"`  //nolint:tagliatelle
 	Gender        string `xml:"gender"`
 	Company       string `xml:"company"`
 	Email         string `xml:"email"`
@@ -89,11 +89,11 @@ func (s *XMLService) Users(query, orderField string, orderBy, offset, limit int)
 		return nil, service.NewServiceError(service.BadRequest, err)
 	}
 
-	if offset < len(result)+1 && offset >= 0 {
-		result = result[offset:]
-	} else {
+	if offset > len(result) || offset < 0 {
 		return nil, service.NewServiceError(service.BadRequest, errWrongOffset)
 	}
+
+	result = result[offset:]
 
 	if limit < len(result) {
 		result = result[:limit]
