@@ -16,8 +16,8 @@ type XMLService struct {
 }
 
 type XMLClient struct {
-	Id            int    `xml:"id"`
-	Guid          string `xml:"guid"`
+	ID            int    `xml:"id"`
+	GUID          string `xml:"guid"`
 	IsActive      bool   `xml:"isActive"`
 	Balance       string `xml:"balance"`
 	Picture       string `xml:"picture"`
@@ -66,14 +66,14 @@ func (s *XMLService) Users(query, orderField string, orderBy, offset, limit int)
 
 	var result []models.User
 	for _, client := range clients.Clients {
-		Name := client.FirstName + " " + client.LastName
-		if strings.Contains(Name, query) || strings.Contains(client.About, query) {
+		name := client.FirstName + " " + client.LastName
+		if strings.Contains(name, query) || strings.Contains(client.About, query) {
 			var user models.User
 			user.About = client.About
 			user.Age = client.Age
 			user.Gender = client.Gender
-			user.Id = client.Id
-			user.Name = Name
+			user.ID = client.ID
+			user.Name = name
 			result = append(result, user)
 		}
 	}

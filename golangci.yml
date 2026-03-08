@@ -34,7 +34,6 @@ linters:
   #  - depguard
   #  - dogsled
   #  - dupl
-  #  - dupword
   #  - durationcheck
   #  - embeddedstructfieldcheck
   #  - err113
@@ -294,19 +293,6 @@ linters:
       # Tokens count to trigger issue.
       # Default: 150
       threshold: 100
-
-    #dupword:
-      # Keywords for detecting duplicate words.
-      # If this list is not empty, only the words defined in this list will be detected.
-      # Default: []
-      #keywords:
-      #  - "the"
-      #  - "and"
-      #  - "a"
-      # Keywords used to ignore detection.
-      # Default: []
-      #ignore:
-      #  - "0C0C"
 
     embeddedstructfieldcheck:
       # Checks that sync.Mutex and sync.RWMutex are not used as embedded fields.

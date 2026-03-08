@@ -61,7 +61,7 @@ func testCasesMain() []testCaseMain {
 			want: &models.SearchResponse{
 				Users: []models.User{
 					{
-						Id:     1,
+						ID:     1,
 						Name:   "Hilda Mayer",
 						Age:    21,
 						About:  "Sit commodo consectetur minim amet ex. Elit aute mollit fugiat labore sint ipsum dolor cupidatat qui reprehenderit. Eu nisi in exercitation culpa sint aliqua nulla nulla proident eu. Nisi reprehenderit anim cupidatat dolor incididunt laboris mollit magna commodo ex. Cupidatat sit id aliqua amet nisi et voluptate voluptate commodo ex eiusmod et nulla velit.\n",

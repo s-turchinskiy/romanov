@@ -20,16 +20,16 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	h.SearchServer(w, req)
 }
 
-func NewHandler(service service.Servicer, timeout time.Duration) *Handler {
+func NewHandler(srvc service.Servicer, timeout time.Duration) *Handler {
 	return &Handler{
-		service: service,
+		service: srvc,
 		timeout: timeout,
 	}
 }
 
 func (h *Handler) SearchServer(w http.ResponseWriter, r *http.Request) {
-	AccessToken := r.Header[http.CanonicalHeaderKey("AccessToken")]
-	if len(AccessToken) == 0 || AccessToken[0] == "" {
+	accessToken := r.Header[http.CanonicalHeaderKey("AccessToken")]
+	if len(accessToken) == 0 || accessToken[0] == "" {
 		http.Error(w, "", http.StatusUnauthorized)
 		return
 	}
