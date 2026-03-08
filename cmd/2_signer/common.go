@@ -1,5 +1,6 @@
 //nolint
 
+// main Описание пакета
 package main
 
 import (
