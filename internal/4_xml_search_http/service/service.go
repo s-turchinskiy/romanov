@@ -39,9 +39,7 @@ func sortAsc(sortType string, clients []models.User) ([]models.User, error) {
 		sort.Slice(clients, func(i, j int) bool {
 			return clients[i].Age < clients[j].Age
 		})
-	case "":
-		fallthrough
-	case "Name":
+	case "Name", "":
 		sort.Slice(clients, func(i, j int) bool {
 			return clients[i].Name < clients[j].Name
 		})
@@ -62,9 +60,7 @@ func sortDesc(sortType string, clients []models.User) ([]models.User, error) {
 		sort.Slice(clients, func(i, j int) bool {
 			return clients[i].Age > clients[j].Age
 		})
-	case "":
-		fallthrough
-	case "Name":
+	case "Name", "":
 		sort.Slice(clients, func(i, j int) bool {
 			return clients[i].Name > clients[j].Name
 		})
