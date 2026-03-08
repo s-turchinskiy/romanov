@@ -1904,10 +1904,10 @@ linters:
       # Default: ""
       mode: restricted # Check only comments.
 
-    #mnd:
+    mnd:
       # List of enabled checks, see https://github.com/tommy-muehle/go-mnd/#checks for description.
       # Default: ["argument", "case", "condition", "operation", "return", "assign"]
-      #checks:
+      checks:
       #  - argument
       #  - case
       #  - condition
@@ -1995,7 +1995,7 @@ linters:
       require-explanation: true # Disable linters this way: //nolint:first,second // Reason here.
       # Enable to require nolint directives to mention the specific linter being suppressed.
       # Default: false
-      require-specific: true # Do not allow //nolint without specific linter name(s).
+      #require-specific: true # Do not allow //nolint without specific linter name(s).
 
     #nonamedreturns:
       # Report named error if it is assigned inside defer.
