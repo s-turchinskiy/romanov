@@ -2369,7 +2369,7 @@ linters:
         # https://github.com/mgechev/revive/blob/HEAD/RULES_DESCRIPTIONS.md#exported
         - name: exported
           #severity: warning
-          #disabled: false
+          #disabled: true
           #exclude: [""]
           #arguments:
           # - "check-private-receivers"
@@ -2512,7 +2512,7 @@ linters:
         # https://github.com/mgechev/revive/blob/HEAD/RULES_DESCRIPTIONS.md#package-comments
         - name: package-comments
           #severity: warning
-          #disabled: false
+          #disabled: true
           #exclude: [""]
         # https://github.com/mgechev/revive/blob/HEAD/RULES_DESCRIPTIONS.md#range
         - name: range

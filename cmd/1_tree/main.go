@@ -92,7 +92,7 @@ func printItems(out io.Writer, dir string, printFiles bool, shift string, list [
 		if item.IsDir() {
 			newShift := shift
 			if i != lastIndex {
-				newShift = newShift + shiftTopLevel
+				newShift += shiftTopLevel
 			}
 			newShift += "\t"
 

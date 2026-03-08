@@ -100,6 +100,7 @@ func (h *Handler) SearchServer(w http.ResponseWriter, r *http.Request) {
 		bytes, err := json.Marshal(result.data)
 		if err != nil {
 			http.Error(w, "Unable to marshal users to json", http.StatusInternalServerError)
+			return
 		}
 		_, _ = w.Write(bytes)
 	}
