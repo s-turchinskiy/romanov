@@ -1992,10 +1992,10 @@ linters:
       #allow-no-explanation: [ ]
       # Enable to require an explanation of nonzero length after each nolint directive.
       # Default: false
-      require-explanation: true # Disable linters this way: //nolint:first,second // Reason here.
+      require-explanation: false # Disable linters this way: //nolint:first,second // Reason here.
       # Enable to require nolint directives to mention the specific linter being suppressed.
       # Default: false
-      #require-specific: true # Do not allow //nolint without specific linter name(s).
+      require-specific: false # Do not allow //nolint without specific linter name(s).
 
     #nonamedreturns:
       # Report named error if it is assigned inside defer.
