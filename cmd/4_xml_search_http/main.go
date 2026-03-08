@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/s-turchinskiy/romanov/internal/4_xml_search_http/handlers"
-	"github.com/s-turchinskiy/romanov/internal/4_xml_search_http/models"
-	"github.com/s-turchinskiy/romanov/internal/4_xml_search_http/service/xml_repository"
 	"net/http/httptest"
 	"os"
 	"reflect"
 	"time"
+
+	"github.com/s-turchinskiy/romanov/internal/4_xml_search_http/handlers"
+	"github.com/s-turchinskiy/romanov/internal/4_xml_search_http/models"
+	"github.com/s-turchinskiy/romanov/internal/4_xml_search_http/service/xml_repository"
 )
 
 type fieldsMain struct {
@@ -24,7 +25,6 @@ type testCaseMain struct {
 }
 
 func main() {
-
 	res, _ := os.Getwd()
 	hndlr := handlers.NewHandler(
 		xml_repository.NewXMLService(res+"/cmd/4_xml_search_http/dataset.xml"),
@@ -48,7 +48,6 @@ func main() {
 }
 
 func testCasesMain() []testCaseMain {
-
 	fieldWithAccessToken := fieldsMain{AccessToken: "TestToken"}
 
 	return []testCaseMain{

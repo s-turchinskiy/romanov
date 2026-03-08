@@ -2,8 +2,9 @@ package service
 
 import (
 	"errors"
-	"github.com/s-turchinskiy/romanov/internal/4_xml_search_http/models"
 	"sort"
+
+	"github.com/s-turchinskiy/romanov/internal/4_xml_search_http/models"
 )
 
 type Servicer interface {

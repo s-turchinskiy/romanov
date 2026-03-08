@@ -3,11 +3,12 @@ package handlers
 import (
 	"context"
 	"encoding/json"
-	"github.com/s-turchinskiy/romanov/internal/4_xml_search_http/models"
-	"github.com/s-turchinskiy/romanov/internal/4_xml_search_http/service"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/s-turchinskiy/romanov/internal/4_xml_search_http/models"
+	"github.com/s-turchinskiy/romanov/internal/4_xml_search_http/service"
 )
 
 type Handler struct {
@@ -20,7 +21,6 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 }
 
 func NewHandler(service service.Servicer, timeout time.Duration) *Handler {
-
 	return &Handler{
 		service: service,
 		timeout: timeout,

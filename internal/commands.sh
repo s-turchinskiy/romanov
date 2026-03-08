@@ -8,3 +8,7 @@ cd /home/stanislav/go/romanov/ && go test ./... -v -coverpkg=./... -coverprofile
 
 #
 cd /home/stanislav/go/romanov/ && git checkout -b hw_4 && git add . && git commit -m 'homework 4' && git push
+
+#
+go install mvdan.cc/gofumpt@latest
+gofumpt -l -w .

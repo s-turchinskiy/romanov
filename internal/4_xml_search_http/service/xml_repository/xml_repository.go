@@ -4,10 +4,11 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/s-turchinskiy/romanov/internal/4_xml_search_http/models"
-	"github.com/s-turchinskiy/romanov/internal/4_xml_search_http/service"
 	"os"
 	"strings"
+
+	"github.com/s-turchinskiy/romanov/internal/4_xml_search_http/models"
+	"github.com/s-turchinskiy/romanov/internal/4_xml_search_http/service"
 )
 
 type XMLService struct {
@@ -39,14 +40,12 @@ type Clients struct {
 }
 
 func NewXMLService(filename string) *XMLService {
-
 	return &XMLService{
 		filename: filename,
 	}
 }
 
 func (s *XMLService) Users(query, orderField string, orderBy, offset, limit int) ([]models.User, *service.ServiceError) {
-
 	if _, err := os.Stat(s.filename); err != nil && errors.Is(err, os.ErrNotExist) {
 		return nil, service.NewServiceError(service.InternalError, fmt.Errorf("file %v not exist", s.filename))
 	}

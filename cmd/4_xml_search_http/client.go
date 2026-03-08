@@ -5,13 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/s-turchinskiy/romanov/internal/4_xml_search_http/models"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"net/url"
 	"strconv"
 	"time"
+
+	"github.com/s-turchinskiy/romanov/internal/4_xml_search_http/models"
 )
 
 var (
@@ -28,7 +29,6 @@ type SearchClient struct {
 
 // FindUsers отправляет запрос во внешнюю систему, которая непосредственно ищет пользоваталей
 func (srv *SearchClient) FindUsers(req models.SearchRequest) (*models.SearchResponse, error) {
-
 	searcherParams := url.Values{}
 
 	if req.Limit < 0 {
@@ -41,7 +41,7 @@ func (srv *SearchClient) FindUsers(req models.SearchRequest) (*models.SearchResp
 		return nil, fmt.Errorf("offset must be > 0")
 	}
 
-	//нужно для получения следующей записи, на основе которой мы скажем - можно показать переключатель следующей страницы или нет
+	// нужно для получения следующей записи, на основе которой мы скажем - можно показать переключатель следующей страницы или нет
 	req.Limit++
 
 	searcherParams.Add("limit", strconv.Itoa(req.Limit))
@@ -91,7 +91,7 @@ func (srv *SearchClient) FindUsers(req models.SearchRequest) (*models.SearchResp
 		result.NextPage = true
 		result.Users = data[0 : len(data)-1]
 	} else {
-		result.Users = data[0:len(data)]
+		result.Users = data[0:]
 	}
 
 	return &result, err

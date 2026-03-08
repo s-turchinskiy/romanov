@@ -11,7 +11,6 @@ import (
 )
 
 func ExecutePipeline(jobs ...job) {
-
 	numWorkers := len(jobs)
 
 	wg := sync.WaitGroup{}
@@ -20,9 +19,7 @@ func ExecutePipeline(jobs ...job) {
 	dataChs := make([]chan interface{}, numWorkers+1)
 
 	for i := 0; i < numWorkers+1; i++ {
-
 		dataChs[i] = make(chan interface{}, MaxInputDataLen)
-
 	}
 
 	for i, job := range jobs {
@@ -35,8 +32,8 @@ func ExecutePipeline(jobs ...job) {
 func runJob(job job, in, out chan interface{}, wg *sync.WaitGroup, firstJob bool) {
 	defer wg.Done()
 	job(in, out)
-	//а как получить имена джоб?
-	//log.Println("job end", time.Now())
+	// а как получить имена джоб?
+	// log.Println("job end", time.Now())
 	close(out)
 	if firstJob {
 		close(in)
@@ -44,7 +41,6 @@ func runJob(job job, in, out chan interface{}, wg *sync.WaitGroup, firstJob bool
 }
 
 func SingleHash(in, out chan any) {
-
 	wg := sync.WaitGroup{}
 
 	for untypedValue := range in {
@@ -80,7 +76,6 @@ func SingleHash(in, out chan any) {
 }
 
 func MultiHash(in, out chan interface{}) {
-
 	hashNumbers := 6
 	wgForMultiHash := sync.WaitGroup{}
 
@@ -118,7 +113,6 @@ func MultiHash(in, out chan interface{}) {
 }
 
 func CombineResults(in, out chan interface{}) {
-
 	var results []string
 	for value := range in {
 		results = append(results, value.(string))
@@ -129,8 +123,8 @@ func CombineResults(in, out chan interface{}) {
 	res := strings.Join(results, "_")
 	out <- res
 }
-func stringFromUntypedValue(untypedValue any) (string, error) {
 
+func stringFromUntypedValue(untypedValue any) (string, error) {
 	var data string
 
 	switch valType := untypedValue.(type) {
@@ -147,7 +141,6 @@ func stringFromUntypedValue(untypedValue any) (string, error) {
 }
 
 func main() {
-
 	inputData := []int{0, 1, 1, 2, 3, 5, 8}
 
 	hashSignJobs := []job{
@@ -165,7 +158,7 @@ func main() {
 			if !ok {
 				log.Fatal("cant convert result data to string")
 			}
-			//testResult = data
+			// testResult = data
 		}),
 	}
 
@@ -175,5 +168,4 @@ func main() {
 
 	end := time.Since(start)
 	fmt.Println(end)
-
 }

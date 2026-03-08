@@ -1,13 +1,14 @@
 package main
 
 import (
-	"github.com/s-turchinskiy/romanov/internal/4_xml_search_http/handlers"
-	"github.com/s-turchinskiy/romanov/internal/4_xml_search_http/models"
-	"github.com/s-turchinskiy/romanov/internal/4_xml_search_http/service/xml_repository"
 	"net/http/httptest"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/s-turchinskiy/romanov/internal/4_xml_search_http/handlers"
+	"github.com/s-turchinskiy/romanov/internal/4_xml_search_http/models"
+	"github.com/s-turchinskiy/romanov/internal/4_xml_search_http/service/xml_repository"
 )
 
 type fields struct {
@@ -53,13 +54,12 @@ func TestSearchClient_FindUsers(t *testing.T) {
 }
 
 func testCases(url, urlWrong string) []testCase {
-
 	fieldWithAccessToken := fields{
 		AccessToken: "TestToken",
 		URL:         url,
 	}
 
-	var multipleUsersCupidatat = []models.User{
+	multipleUsersCupidatat := []models.User{
 		{
 			Id:     0,
 			Name:   "Boyd Wolf",
