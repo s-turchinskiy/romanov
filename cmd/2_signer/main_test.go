@@ -1,3 +1,4 @@
+// nolint
 package main
 
 import (
@@ -26,7 +27,7 @@ func TestPipeline(t *testing.T) {
 	ok := true
 	var recieved uint32
 	freeFlowJobs := []job{
-		job(func(in, out chan interface{}) {
+		job(func(in, out chan any) {
 			out <- 1
 			time.Sleep(10 * time.Millisecond)
 			currRecieved := atomic.LoadUint32(&recieved)
@@ -45,7 +46,7 @@ func TestPipeline(t *testing.T) {
 				ok = false
 			}
 		}),
-		job(func(in, out chan interface{}) {
+		job(func(in, out chan any) {
 			for range in {
 				atomic.AddUint32(&recieved, 1)
 			}
@@ -121,7 +122,7 @@ func TestSigner(t *testing.T) {
 	// inputData := []int{0,1}
 
 	hashSignJobs := []job{
-		job(func(in, out chan interface{}) {
+		job(func(in, out chan any) {
 			for _, fibNum := range inputData {
 				out <- fibNum
 			}
@@ -129,7 +130,7 @@ func TestSigner(t *testing.T) {
 		job(SingleHash),
 		job(MultiHash),
 		job(CombineResults),
-		job(func(in, out chan interface{}) {
+		job(func(in, out chan any) {
 			dataRaw := <-in
 			data, ok := dataRaw.(string)
 			if !ok {

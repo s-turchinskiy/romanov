@@ -1,3 +1,4 @@
+// nolint
 package main
 
 import (
@@ -21,18 +22,18 @@ import (
 func TestByIlia(t *testing.T) {
 	var recieved uint32
 	freeFlowJobs := []job{
-		job(func(in, out chan interface{}) {
+		job(func(in, out chan any) {
 			out <- uint32(1)
 			out <- uint32(3)
 			out <- uint32(4)
 		}),
-		job(func(in, out chan interface{}) {
+		job(func(in, out chan any) {
 			for val := range in {
 				out <- val.(uint32) * 3
 				time.Sleep(time.Millisecond * 100)
 			}
 		}),
-		job(func(in, out chan interface{}) {
+		job(func(in, out chan any) {
 			for val := range in {
 				fmt.Println("collected", val)
 				atomic.AddUint32(&recieved, val.(uint32))

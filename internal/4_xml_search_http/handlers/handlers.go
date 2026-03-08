@@ -102,6 +102,5 @@ func (h *Handler) SearchServer(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Unable to marshal users to json", http.StatusInternalServerError)
 		}
 		_, _ = w.Write(bytes)
-
 	}
 }

@@ -1802,7 +1802,7 @@ linters:
       # `allow` and `reject` settings cannot be used at the same time.
       #
       # Keywords:
-      # - `empty` for `interface{}`
+      # - `empty` for `any`
       # - `error` for errors
       # - `stdlib` for standard library
       # - `anon` for anonymous interfaces
@@ -1819,7 +1819,7 @@ linters:
       # `allow` and `reject` settings cannot be used at the same time.
       #
       # Keywords:
-      # - `empty` for `interface{}`
+      # - `empty` for `any`
       # - `error` for errors
       # - `stdlib` for standard library
       # - `anon` for anonymous interfaces
@@ -4140,7 +4140,7 @@ formatters:
       # https://pkg.go.dev/cmd/gofmt
       # Default: []
       rewrite-rules:
-        - pattern: 'interface{}'
+        - pattern: 'any'
           replacement: 'any'
         - pattern: 'a[b:len(a)]'
           replacement: 'a[b:]'

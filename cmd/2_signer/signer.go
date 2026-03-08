@@ -16,10 +16,10 @@ func ExecutePipeline(jobs ...job) {
 	wg := sync.WaitGroup{}
 	wg.Add(numWorkers)
 
-	dataChs := make([]chan interface{}, numWorkers+1)
+	dataChs := make([]chan any, numWorkers+1)
 
 	for i := 0; i < numWorkers+1; i++ {
-		dataChs[i] = make(chan interface{}, MaxInputDataLen)
+		dataChs[i] = make(chan any, MaxInputDataLen)
 	}
 
 	for i, job := range jobs {
@@ -29,7 +29,7 @@ func ExecutePipeline(jobs ...job) {
 	wg.Wait()
 }
 
-func runJob(job job, in, out chan interface{}, wg *sync.WaitGroup, firstJob bool) {
+func runJob(job job, in, out chan any, wg *sync.WaitGroup, firstJob bool) {
 	defer wg.Done()
 	job(in, out)
 	// а как получить имена джоб?
@@ -75,7 +75,7 @@ func SingleHash(in, out chan any) {
 	wg.Wait()
 }
 
-func MultiHash(in, out chan interface{}) {
+func MultiHash(in, out chan any) {
 	hashNumbers := 6
 	wgForMultiHash := sync.WaitGroup{}
 
@@ -99,7 +99,7 @@ func MultiHash(in, out chan interface{}) {
 		}
 
 		wgForMultiHash.Add(1)
-		go func(out chan interface{}, wgForMultiHash *sync.WaitGroup) {
+		go func(out chan any, wgForMultiHash *sync.WaitGroup) {
 			defer wgForMultiHash.Done()
 			wg.Wait()
 			var res string
@@ -112,7 +112,7 @@ func MultiHash(in, out chan interface{}) {
 	wgForMultiHash.Wait()
 }
 
-func CombineResults(in, out chan interface{}) {
+func CombineResults(in, out chan any) {
 	var results []string
 	for value := range in {
 		results = append(results, value.(string))
@@ -144,7 +144,7 @@ func main() {
 	inputData := []int{0, 1, 1, 2, 3, 5, 8}
 
 	hashSignJobs := []job{
-		job(func(in, out chan interface{}) {
+		job(func(in, out chan any) {
 			for _, fibNum := range inputData {
 				out <- fibNum
 			}
@@ -152,7 +152,7 @@ func main() {
 		job(SingleHash),
 		job(MultiHash),
 		job(CombineResults),
-		job(func(in, out chan interface{}) {
+		job(func(in, out chan any) {
 			dataRaw := <-in
 			_, ok := dataRaw.(string)
 			if !ok {

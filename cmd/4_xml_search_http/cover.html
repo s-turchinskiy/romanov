@@ -229,7 +229,7 @@ import (
         "time"
 )
 
-type job func(in, out chan interface{})
+type job func(in, out chan any)
 
 const (
         MaxInputDataLen = 100
@@ -299,11 +299,11 @@ func ExecutePipeline(jobs ...job) <span class="cov8" title="1">{
         wg := sync.WaitGroup{}
         wg.Add(numWorkers)
 
-        dataChs := make([]chan interface{}, numWorkers+1)
+        dataChs := make([]chan any, numWorkers+1)
 
         for i := 0; i &lt; numWorkers+1; i++ </span><span class="cov8" title="1">{
 
-                dataChs[i] = make(chan interface{}, MaxInputDataLen)
+                dataChs[i] = make(chan any, MaxInputDataLen)
 
         }</span>
 
@@ -314,7 +314,7 @@ func ExecutePipeline(jobs ...job) <span class="cov8" title="1">{
         <span class="cov8" title="1">wg.Wait()</span>
 }
 
-func runJob(job job, in, out chan interface{}, wg *sync.WaitGroup, firstJob bool) <span class="cov8" title="1">{
+func runJob(job job, in, out chan any, wg *sync.WaitGroup, firstJob bool) <span class="cov8" title="1">{
         defer wg.Done()
         job(in, out)
         //а как получить имена джоб?
@@ -361,7 +361,7 @@ func SingleHash(in, out chan any) <span class="cov8" title="1">{
         <span class="cov8" title="1">wg.Wait()</span>
 }
 
-func MultiHash(in, out chan interface{}) <span class="cov8" title="1">{
+func MultiHash(in, out chan any) <span class="cov8" title="1">{
 
         hashNumbers := 6
         wgForMultiHash := sync.WaitGroup{}
@@ -386,7 +386,7 @@ func MultiHash(in, out chan interface{}) <span class="cov8" title="1">{
                 }
 
                 <span class="cov8" title="1">wgForMultiHash.Add(1)
-                go func(out chan interface{}, wgForMultiHash *sync.WaitGroup) </span><span class="cov8" title="1">{
+                go func(out chan any, wgForMultiHash *sync.WaitGroup) </span><span class="cov8" title="1">{
                         defer wgForMultiHash.Done()
                         wg.Wait()
                         var res string
@@ -399,7 +399,7 @@ func MultiHash(in, out chan interface{}) <span class="cov8" title="1">{
         <span class="cov8" title="1">wgForMultiHash.Wait()</span>
 }
 
-func CombineResults(in, out chan interface{}) <span class="cov8" title="1">{
+func CombineResults(in, out chan any) <span class="cov8" title="1">{
 
         var results []string
         for value := range in </span><span class="cov8" title="1">{
@@ -433,7 +433,7 @@ func main() <span class="cov0" title="0">{
         inputData := []int{0, 1, 1, 2, 3, 5, 8}
 
         hashSignJobs := []job{
-                job(func(in, out chan interface{}) </span><span class="cov0" title="0">{
+                job(func(in, out chan any) </span><span class="cov0" title="0">{
                         for _, fibNum := range inputData </span><span class="cov0" title="0">{
                                 out &lt;- fibNum
                         }</span>
@@ -441,7 +441,7 @@ func main() <span class="cov0" title="0">{
                 job(SingleHash),
                 job(MultiHash),
                 job(CombineResults),
-                job(func(in, out chan interface{}) <span class="cov0" title="0">{
+                job(func(in, out chan any) <span class="cov0" title="0">{
                         dataRaw := &lt;-in
                         _, ok := dataRaw.(string)
                         if !ok </span><span class="cov0" title="0">{

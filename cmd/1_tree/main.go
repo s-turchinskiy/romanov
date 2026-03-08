@@ -65,7 +65,6 @@ func selectionFiles(printFiles bool, list []os.DirEntry) []os.DirEntry {
 func printItems(out io.Writer, dir string, printFiles bool, shift string, list []os.DirEntry) error {
 	lastIndex := len(list) - 1
 	for i, item := range list {
-
 		fileFullName := filepath.Join(dir, item.Name())
 
 		var builder strings.Builder
