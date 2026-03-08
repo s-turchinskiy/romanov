@@ -18,7 +18,7 @@ func ExecutePipeline(jobs ...job) {
 
 	dataChs := make([]chan any, numWorkers+1)
 
-	for i := 0; i < numWorkers+1; i++ {
+	for i := range numWorkers {
 		dataChs[i] = make(chan any, MaxInputDataLen)
 	}
 
@@ -89,7 +89,7 @@ func MultiHash(in, out chan any) {
 		wg := sync.WaitGroup{}
 		wg.Add(hashNumbers)
 
-		for i := 0; i < hashNumbers; i++ {
+		for i := range hashNumbers {
 			go func(i int) {
 				defer wg.Done()
 				results[i] = DataSignerCrc32(strconv.Itoa(i) + data)

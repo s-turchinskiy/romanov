@@ -1,4 +1,5 @@
-// nolint
+//nolint
+
 package main
 
 import (
