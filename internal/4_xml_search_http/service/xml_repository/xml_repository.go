@@ -23,8 +23,8 @@ type XMLClient struct {
 	Picture       string `xml:"picture"`
 	Age           int    `xml:"age"`
 	EyeColor      string `xml:"eyeColor"`
-	FirstName     string `xml:"first_name"` //nolint:tagliatelle
-	LastName      string `xml:"last_name"`  //nolint:tagliatelle
+	FirstName     string `xml:"first_name"` //nolint:tagliatelle //файл XML менять нельзя
+	LastName      string `xml:"last_name"`  //nolint:tagliatelle //файл XML менять нельзя
 	Gender        string `xml:"gender"`
 	Company       string `xml:"company"`
 	Email         string `xml:"email"`
