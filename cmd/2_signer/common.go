@@ -1,6 +1,4 @@
-//nolint
-
-// main Описание пакета
+// nolint
 package main
 
 import (
