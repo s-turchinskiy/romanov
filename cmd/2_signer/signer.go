@@ -143,7 +143,7 @@ func main() {
 	inputData := []int{0, 1, 1, 2, 3, 5, 8}
 
 	hashSignJobs := []job{
-		job(func(in, out chan any) {
+		job(func(_, out chan any) {
 			for _, fibNum := range inputData {
 				out <- fibNum
 			}
@@ -151,7 +151,7 @@ func main() {
 		job(SingleHash),
 		job(MultiHash),
 		job(CombineResults),
-		job(func(in, out chan any) {
+		job(func(in, _ chan any) {
 			dataRaw := <-in
 			_, ok := dataRaw.(string)
 			if !ok {
