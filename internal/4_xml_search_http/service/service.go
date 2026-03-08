@@ -12,8 +12,8 @@ type Servicer interface {
 }
 
 var (
-	errorWrongSortOrder = errors.New("wrong sort order")
-	errorBadOrderField  = errors.New(models.ErrorBadOrderField)
+	errWrongSortOrder = errors.New("wrong sort order")
+	errBadOrderField  = errors.New(models.ErrorBadOrderField)
 )
 
 func SortClients(sortType string, sortOrder int, clients []models.User) ([]models.User, error) {
@@ -25,7 +25,7 @@ func SortClients(sortType string, sortOrder int, clients []models.User) ([]model
 	case models.OrderByDesc:
 		return sortDesc(sortType, clients)
 	default:
-		return nil, errorWrongSortOrder
+		return nil, errWrongSortOrder
 	}
 }
 
@@ -44,7 +44,7 @@ func sortAsc(sortType string, clients []models.User) ([]models.User, error) {
 			return clients[i].Name < clients[j].Name
 		})
 	default:
-		return nil, errorBadOrderField
+		return nil, errBadOrderField
 	}
 
 	return clients, nil
@@ -65,7 +65,7 @@ func sortDesc(sortType string, clients []models.User) ([]models.User, error) {
 			return clients[i].Name > clients[j].Name
 		})
 	default:
-		return nil, errorBadOrderField
+		return nil, errBadOrderField
 	}
 
 	return clients, nil

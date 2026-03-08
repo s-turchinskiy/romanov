@@ -16,15 +16,15 @@ type Handler struct {
 	timeout time.Duration
 }
 
-func (h *Handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	h.SearchServer(w, req)
-}
-
 func NewHandler(srvc service.Servicer, timeout time.Duration) *Handler {
 	return &Handler{
 		service: srvc,
 		timeout: timeout,
 	}
+}
+
+func (h *Handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	h.SearchServer(w, req)
 }
 
 func (h *Handler) SearchServer(w http.ResponseWriter, r *http.Request) {
