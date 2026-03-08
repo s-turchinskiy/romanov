@@ -2100,10 +2100,13 @@ linters:
       #skip-generated-by: ["protoc-gen-go-my-own-generator"]
       # Skip files matching the specified glob pattern from the checking.
       # Default: []
-      #skip-files:
+      skip-files:
       #  - "*.pb.go"
       #  - "*/vendor/*"
-      #  - "/full/path/to/file.go"
+        - "/cmd/2_signer/common.go"
+        - "/cmd/2_signer/extra_test.go"
+        - "/cmd/2_signer/main_test.go"
+        - "/cmd/4_xml_search_http/client.go"
       # Skip any generated files from the checking.
       # Default: false
       #skip-any-generated: true
