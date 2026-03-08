@@ -39,6 +39,12 @@ type Clients struct {
 	Clients []XMLClient `xml:"row"`
 }
 
+var (
+	errCantOpenFile = errors.New("can't open file")
+	errWrongOffset  = errors.New("wrong offset")
+	errWrongLimit   = errors.New("wrong limit")
+)
+
 func NewXMLService(filename string) *XMLService {
 	return &XMLService{
 		filename: filename,
@@ -52,7 +58,7 @@ func (s *XMLService) Users(query, orderField string, orderBy, offset, limit int)
 
 	file, err := os.Open(s.filename)
 	if err != nil {
-		return nil, service.NewServiceError(service.InternalError, errors.New("can't open file"))
+		return nil, service.NewServiceError(service.InternalError, errCantOpenFile)
 	}
 	defer func() {
 		_ = file.Close()
@@ -86,13 +92,13 @@ func (s *XMLService) Users(query, orderField string, orderBy, offset, limit int)
 	if offset < len(result)+1 && offset >= 0 {
 		result = result[offset:]
 	} else {
-		return nil, service.NewServiceError(service.BadRequest, errors.New("wrong offset"))
+		return nil, service.NewServiceError(service.BadRequest, errWrongOffset)
 	}
 
 	if limit < len(result) {
 		result = result[:limit]
 	} else if limit < 0 {
-		return nil, service.NewServiceError(service.BadRequest, errors.New("wrong limit"))
+		return nil, service.NewServiceError(service.BadRequest, errWrongLimit)
 	}
 
 	return result, nil

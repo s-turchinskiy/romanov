@@ -65,9 +65,9 @@
 				
 				<option value="file4">github.com/s-turchinskiy/romanov/cmd/4_xml_search_http/main.go (0.0%)</option>
 				
-				<option value="file5">github.com/s-turchinskiy/romanov/internal/4_xml_search_http/handlers/handlers.go (79.2%)</option>
+				<option value="file5">github.com/s-turchinskiy/romanov/internal/4_xml_search_http/handlers/handlers.go (77.6%)</option>
 				
-				<option value="file6">github.com/s-turchinskiy/romanov/internal/4_xml_search_http/service/service.go (20.0%)</option>
+				<option value="file6">github.com/s-turchinskiy/romanov/internal/4_xml_search_http/service/service.go (21.7%)</option>
 				
 				<option value="file7">github.com/s-turchinskiy/romanov/internal/4_xml_search_http/service/service_error.go (66.7%)</option>
 				
@@ -116,7 +116,6 @@ func main() <span class="cov0" title="0">{
 }
 
 func dirTree(out io.Writer, dir string, printFiles bool) error <span class="cov8" title="1">{
-
         return printDir(out, dir, printFiles, "")
 }</span>
 
@@ -146,7 +145,6 @@ func selectionFiles(printFiles bool, list []os.DirEntry) []os.DirEntry <span cla
                 if item.IsDir() </span><span class="cov8" title="1">{
                         newList = append(newList, item)
                 }</span>
-
         }
         <span class="cov8" title="1">return newList</span>
 }
@@ -154,7 +152,6 @@ func selectionFiles(printFiles bool, list []os.DirEntry) []os.DirEntry <span cla
 func printItems(out io.Writer, dir string, printFiles bool, shift string, list []os.DirEntry) error <span class="cov8" title="1">{
         lastIndex := len(list) - 1
         for i, item := range list </span><span class="cov8" title="1">{
-
                 fileFullName := filepath.Join(dir, item.Name())
 
                 var builder strings.Builder
@@ -182,9 +179,9 @@ func printItems(out io.Writer, dir string, printFiles bool, shift string, list [
                 <span class="cov8" title="1">if item.IsDir() </span><span class="cov8" title="1">{
                         newShift := shift
                         if i != lastIndex </span><span class="cov8" title="1">{
-                                newShift = newShift + shiftTopLevel
+                                newShift += shiftTopLevel
                         }</span>
-                        <span class="cov8" title="1">newShift = newShift + "\t"
+                        <span class="cov8" title="1">newShift += "\t"
 
                         err = printDir(out, fileFullName, printFiles, newShift)
                         if err != nil </span><span class="cov0" title="0">{
@@ -196,7 +193,6 @@ func printItems(out io.Writer, dir string, printFiles bool, shift string, list [
 }
 
 func addSizeInfoFirFile(item os.DirEntry, builder *strings.Builder, fileFullName string) error <span class="cov8" title="1">{
-
         if item.IsDir() </span><span class="cov8" title="1">{
                 return nil
         }</span>
@@ -218,7 +214,9 @@ func addSizeInfoFirFile(item os.DirEntry, builder *strings.Builder, fileFullName
 }
 </pre>
 		
-		<pre class="file" id="file1" style="display: none">package main
+		<pre class="file" id="file1" style="display: none">//nolint
+
+package main
 
 import (
         "crypto/md5"
@@ -293,7 +291,6 @@ import (
 )
 
 func ExecutePipeline(jobs ...job) <span class="cov8" title="1">{
-
         numWorkers := len(jobs)
 
         wg := sync.WaitGroup{}
@@ -301,10 +298,8 @@ func ExecutePipeline(jobs ...job) <span class="cov8" title="1">{
 
         dataChs := make([]chan any, numWorkers+1)
 
-        for i := 0; i &lt; numWorkers+1; i++ </span><span class="cov8" title="1">{
-
+        for i := range numWorkers + 1 </span><span class="cov8" title="1">{
                 dataChs[i] = make(chan any, MaxInputDataLen)
-
         }</span>
 
         <span class="cov8" title="1">for i, job := range jobs </span><span class="cov8" title="1">{
@@ -317,8 +312,8 @@ func ExecutePipeline(jobs ...job) <span class="cov8" title="1">{
 func runJob(job job, in, out chan any, wg *sync.WaitGroup, firstJob bool) <span class="cov8" title="1">{
         defer wg.Done()
         job(in, out)
-        //а как получить имена джоб?
-        //log.Println("job end", time.Now())
+        // а как получить имена джоб?
+        // log.Println("job end", time.Now())
         close(out)
         if firstJob </span><span class="cov8" title="1">{
                 close(in)
@@ -326,11 +321,9 @@ func runJob(job job, in, out chan any, wg *sync.WaitGroup, firstJob bool) <span 
 }
 
 func SingleHash(in, out chan any) <span class="cov8" title="1">{
-
         wg := sync.WaitGroup{}
 
         for untypedValue := range in </span><span class="cov8" title="1">{
-
                 data, err := stringFromUntypedValue(untypedValue)
                 if err != nil </span><span class="cov0" title="0">{
                         log.Fatal(err)
@@ -362,12 +355,10 @@ func SingleHash(in, out chan any) <span class="cov8" title="1">{
 }
 
 func MultiHash(in, out chan any) <span class="cov8" title="1">{
-
         hashNumbers := 6
         wgForMultiHash := sync.WaitGroup{}
 
         for untypedValue := range in </span><span class="cov8" title="1">{
-
                 data, err := stringFromUntypedValue(untypedValue)
                 if err != nil </span><span class="cov0" title="0">{
                         log.Fatal(err)
@@ -378,7 +369,7 @@ func MultiHash(in, out chan any) <span class="cov8" title="1">{
                 wg := sync.WaitGroup{}
                 wg.Add(hashNumbers)
 
-                for i := 0; i &lt; hashNumbers; i++ </span><span class="cov8" title="1">{
+                for i := range hashNumbers </span><span class="cov8" title="1">{
                         go func(i int) </span><span class="cov8" title="1">{
                                 defer wg.Done()
                                 results[i] = DataSignerCrc32(strconv.Itoa(i) + data)
@@ -389,18 +380,18 @@ func MultiHash(in, out chan any) <span class="cov8" title="1">{
                 go func(out chan any, wgForMultiHash *sync.WaitGroup) </span><span class="cov8" title="1">{
                         defer wgForMultiHash.Done()
                         wg.Wait()
-                        var res string
+
+                        var sb strings.Builder
                         for _, value := range results </span><span class="cov8" title="1">{
-                                res += value
+                                sb.WriteString(value)
                         }</span>
-                        <span class="cov8" title="1">out &lt;- res</span>
+                        <span class="cov8" title="1">out &lt;- sb.String()</span>
                 }(out, &amp;wgForMultiHash)
         }
         <span class="cov8" title="1">wgForMultiHash.Wait()</span>
 }
 
 func CombineResults(in, out chan any) <span class="cov8" title="1">{
-
         var results []string
         for value := range in </span><span class="cov8" title="1">{
                 results = append(results, value.(string))
@@ -411,8 +402,8 @@ func CombineResults(in, out chan any) <span class="cov8" title="1">{
         res := strings.Join(results, "_")
         out &lt;- res</span>
 }
-func stringFromUntypedValue(untypedValue any) (string, error) <span class="cov8" title="1">{
 
+func stringFromUntypedValue(untypedValue any) (string, error) <span class="cov8" title="1">{
         var data string
 
         switch valType := untypedValue.(type) </span>{
@@ -429,7 +420,6 @@ func stringFromUntypedValue(untypedValue any) (string, error) <span class="cov8"
 }
 
 func main() <span class="cov0" title="0">{
-
         inputData := []int{0, 1, 1, 2, 3, 5, 8}
 
         hashSignJobs := []job{
@@ -447,7 +437,7 @@ func main() <span class="cov0" title="0">{
                         if !ok </span><span class="cov0" title="0">{
                                 log.Fatal("cant convert result data to string")
                         }</span>
-                        //testResult = data
+                        // testResult = data
                 }),
         }
 
@@ -457,24 +447,25 @@ func main() <span class="cov0" title="0">{
 
         end := time.Since(start)
         fmt.Println(end)</span>
-
 }
 </pre>
 		
-		<pre class="file" id="file3" style="display: none">// nolint
+		<pre class="file" id="file3" style="display: none">//nolint
+
 package main
 
 import (
         "encoding/json"
         "errors"
         "fmt"
-        "github.com/s-turchinskiy/romanov/internal/4_xml_search_http/models"
         "io/ioutil"
         "net"
         "net/http"
         "net/url"
         "strconv"
         "time"
+
+        "github.com/s-turchinskiy/romanov/internal/4_xml_search_http/models"
 )
 
 var (
@@ -491,7 +482,6 @@ type SearchClient struct {
 
 // FindUsers отправляет запрос во внешнюю систему, которая непосредственно ищет пользоваталей
 func (srv *SearchClient) FindUsers(req models.SearchRequest) (*models.SearchResponse, error) <span class="cov8" title="1">{
-
         searcherParams := url.Values{}
 
         if req.Limit &lt; 0 </span><span class="cov8" title="1">{
@@ -504,7 +494,7 @@ func (srv *SearchClient) FindUsers(req models.SearchRequest) (*models.SearchResp
                 return nil, fmt.Errorf("offset must be &gt; 0")
         }</span>
 
-        //нужно для получения следующей записи, на основе которой мы скажем - можно показать переключатель следующей страницы или нет
+        // нужно для получения следующей записи, на основе которой мы скажем - можно показать переключатель следующей страницы или нет
         <span class="cov8" title="1">req.Limit++
 
         searcherParams.Add("limit", strconv.Itoa(req.Limit))
@@ -554,7 +544,7 @@ func (srv *SearchClient) FindUsers(req models.SearchRequest) (*models.SearchResp
                 result.NextPage = true
                 result.Users = data[0 : len(data)-1]
         }</span> else<span class="cov8" title="1"> {
-                result.Users = data[0:len(data)]
+                result.Users = data[0:]
         }</span>
 
         <span class="cov8" title="1">return &amp;result, err</span>
@@ -565,13 +555,14 @@ func (srv *SearchClient) FindUsers(req models.SearchRequest) (*models.SearchResp
 
 import (
         "fmt"
-        "github.com/s-turchinskiy/romanov/internal/4_xml_search_http/handlers"
-        "github.com/s-turchinskiy/romanov/internal/4_xml_search_http/models"
-        "github.com/s-turchinskiy/romanov/internal/4_xml_search_http/service/xml_repository"
         "net/http/httptest"
         "os"
         "reflect"
         "time"
+
+        "github.com/s-turchinskiy/romanov/internal/4_xml_search_http/handlers"
+        "github.com/s-turchinskiy/romanov/internal/4_xml_search_http/models"
+        "github.com/s-turchinskiy/romanov/internal/4_xml_search_http/service/xml_repository"
 )
 
 type fieldsMain struct {
@@ -587,7 +578,6 @@ type testCaseMain struct {
 }
 
 func main() <span class="cov0" title="0">{
-
         res, _ := os.Getwd()
         hndlr := handlers.NewHandler(
                 xml_repository.NewXMLService(res+"/cmd/4_xml_search_http/dataset.xml"),
@@ -611,7 +601,6 @@ func main() <span class="cov0" title="0">{
 }
 
 func testCasesMain() []testCaseMain <span class="cov0" title="0">{
-
         fieldWithAccessToken := fieldsMain{AccessToken: "TestToken"}
 
         return []testCaseMain{
@@ -625,7 +614,7 @@ func testCasesMain() []testCaseMain <span class="cov0" title="0">{
                         want: &amp;models.SearchResponse{
                                 Users: []models.User{
                                         {
-                                                Id:     1,
+                                                ID:     1,
                                                 Name:   "Hilda Mayer",
                                                 Age:    21,
                                                 About:  "Sit commodo consectetur minim amet ex. Elit aute mollit fugiat labore sint ipsum dolor cupidatat qui reprehenderit. Eu nisi in exercitation culpa sint aliqua nulla nulla proident eu. Nisi reprehenderit anim cupidatat dolor incididunt laboris mollit magna commodo ex. Cupidatat sit id aliqua amet nisi et voluptate voluptate commodo ex eiusmod et nulla velit.\n",
@@ -645,11 +634,12 @@ func testCasesMain() []testCaseMain <span class="cov0" title="0">{
 import (
         "context"
         "encoding/json"
-        "github.com/s-turchinskiy/romanov/internal/4_xml_search_http/models"
-        "github.com/s-turchinskiy/romanov/internal/4_xml_search_http/service"
         "net/http"
         "strconv"
         "time"
+
+        "github.com/s-turchinskiy/romanov/internal/4_xml_search_http/models"
+        "github.com/s-turchinskiy/romanov/internal/4_xml_search_http/service"
 )
 
 type Handler struct {
@@ -661,17 +651,16 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, req *http.Request) <span clas
         h.SearchServer(w, req)
 }</span>
 
-func NewHandler(service service.Servicer, timeout time.Duration) *Handler <span class="cov8" title="1">{
-
+func NewHandler(srvc service.Servicer, timeout time.Duration) *Handler <span class="cov8" title="1">{
         return &amp;Handler{
-                service: service,
+                service: srvc,
                 timeout: timeout,
         }
 }</span>
 
 func (h *Handler) SearchServer(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
-        AccessToken := r.Header[http.CanonicalHeaderKey("AccessToken")]
-        if len(AccessToken) == 0 || AccessToken[0] == "" </span><span class="cov8" title="1">{
+        accessToken := r.Header[http.CanonicalHeaderKey("AccessToken")]
+        if len(accessToken) == 0 || accessToken[0] == "" </span><span class="cov8" title="1">{
                 http.Error(w, "", http.StatusUnauthorized)
                 return
         }</span>
@@ -742,9 +731,9 @@ func (h *Handler) SearchServer(w http.ResponseWriter, r *http.Request) <span cla
                 <span class="cov8" title="1">bytes, err := json.Marshal(result.data)
                 if err != nil </span><span class="cov0" title="0">{
                         http.Error(w, "Unable to marshal users to json", http.StatusInternalServerError)
+                        return
                 }</span>
                 <span class="cov8" title="1">_, _ = w.Write(bytes)</span>
-
         }
 }
 </pre>
@@ -753,13 +742,19 @@ func (h *Handler) SearchServer(w http.ResponseWriter, r *http.Request) <span cla
 
 import (
         "errors"
-        "github.com/s-turchinskiy/romanov/internal/4_xml_search_http/models"
         "sort"
+
+        "github.com/s-turchinskiy/romanov/internal/4_xml_search_http/models"
 )
 
 type Servicer interface {
         Users(query, orderField string, orderBy, offset, limit int) ([]models.User, *ServiceError)
 }
+
+var (
+        errorWrongSortOrder = errors.New("wrong sort order")
+        errorBadOrderField  = errors.New(models.ErrorBadOrderField)
+)
 
 func SortClients(sortType string, sortOrder int, clients []models.User) ([]models.User, error) <span class="cov8" title="1">{
         switch sortOrder </span>{
@@ -770,7 +765,7 @@ func SortClients(sortType string, sortOrder int, clients []models.User) ([]model
         case models.OrderByDesc:<span class="cov8" title="1">
                 return sortDesc(sortType, clients)</span>
         default:<span class="cov0" title="0">
-                return nil, errors.New("wrong sort order")</span>
+                return nil, errorWrongSortOrder</span>
         }
 }
 
@@ -778,20 +773,18 @@ func sortAsc(sortType string, clients []models.User) ([]models.User, error) <spa
         switch sortType </span>{
         case "Id":<span class="cov0" title="0">
                 sort.Slice(clients, func(i, j int) bool </span><span class="cov0" title="0">{
-                        return clients[i].Id &lt; clients[j].Id
+                        return clients[i].ID &lt; clients[j].ID
                 }</span>)
         case "Age":<span class="cov0" title="0">
                 sort.Slice(clients, func(i, j int) bool </span><span class="cov0" title="0">{
                         return clients[i].Age &lt; clients[j].Age
                 }</span>)
-        case "":<span class="cov0" title="0">
-                fallthrough</span>
-        case "Name":<span class="cov0" title="0">
+        case "Name", "":<span class="cov0" title="0">
                 sort.Slice(clients, func(i, j int) bool </span><span class="cov0" title="0">{
                         return clients[i].Name &lt; clients[j].Name
                 }</span>)
         default:<span class="cov0" title="0">
-                return nil, errors.New(models.ErrorBadOrderField)</span>
+                return nil, errorBadOrderField</span>
         }
 
         <span class="cov0" title="0">return clients, nil</span>
@@ -801,20 +794,18 @@ func sortDesc(sortType string, clients []models.User) ([]models.User, error) <sp
         switch sortType </span>{
         case "Id":<span class="cov0" title="0">
                 sort.Slice(clients, func(i, j int) bool </span><span class="cov0" title="0">{
-                        return clients[i].Id &gt; clients[j].Id
+                        return clients[i].ID &gt; clients[j].ID
                 }</span>)
         case "Age":<span class="cov0" title="0">
                 sort.Slice(clients, func(i, j int) bool </span><span class="cov0" title="0">{
                         return clients[i].Age &gt; clients[j].Age
                 }</span>)
-        case "":<span class="cov0" title="0">
-                fallthrough</span>
-        case "Name":<span class="cov0" title="0">
+        case "Name", "":<span class="cov0" title="0">
                 sort.Slice(clients, func(i, j int) bool </span><span class="cov0" title="0">{
                         return clients[i].Name &gt; clients[j].Name
                 }</span>)
         default:<span class="cov8" title="1">
-                return nil, errors.New(models.ErrorBadOrderField)</span>
+                return nil, errorBadOrderField</span>
         }
 
         <span class="cov0" title="0">return clients, nil</span>
@@ -841,19 +832,19 @@ type ServiceError struct {
         err       error
 }
 
+func NewServiceError(typeError TypeServiceError, err error) *ServiceError <span class="cov8" title="1">{
+        return &amp;ServiceError{
+                TypeError: typeError,
+                err:       err,
+        }
+}</span>
+
 func (e *ServiceError) Error() string <span class="cov8" title="1">{
         return e.err.Error()
 }</span>
 
 func (e *ServiceError) Unwrap() error <span class="cov0" title="0">{
         return ErrServiceError
-}</span>
-
-func NewServiceError(typeError TypeServiceError, err error) *ServiceError <span class="cov8" title="1">{
-        return &amp;ServiceError{
-                TypeError: typeError,
-                err:       err,
-        }
 }</span>
 </pre>
 		
@@ -863,10 +854,11 @@ import (
         "encoding/xml"
         "errors"
         "fmt"
-        "github.com/s-turchinskiy/romanov/internal/4_xml_search_http/models"
-        "github.com/s-turchinskiy/romanov/internal/4_xml_search_http/service"
         "os"
         "strings"
+
+        "github.com/s-turchinskiy/romanov/internal/4_xml_search_http/models"
+        "github.com/s-turchinskiy/romanov/internal/4_xml_search_http/service"
 )
 
 type XMLService struct {
@@ -874,8 +866,8 @@ type XMLService struct {
 }
 
 type XMLClient struct {
-        Id            int    `xml:"id"`
-        Guid          string `xml:"guid"`
+        ID            int    `xml:"id"`
+        GUID          string `xml:"guid"`
         IsActive      bool   `xml:"isActive"`
         Balance       string `xml:"balance"`
         Picture       string `xml:"picture"`
@@ -897,22 +889,26 @@ type Clients struct {
         Clients []XMLClient `xml:"row"`
 }
 
-func NewXMLService(filename string) *XMLService <span class="cov8" title="1">{
+var (
+        errCantOpenFile = errors.New("can't open file")
+        errWrongOffset  = errors.New("wrong offset")
+        errWrongLimit   = errors.New("wrong limit")
+)
 
+func NewXMLService(filename string) *XMLService <span class="cov8" title="1">{
         return &amp;XMLService{
                 filename: filename,
         }
 }</span>
 
 func (s *XMLService) Users(query, orderField string, orderBy, offset, limit int) ([]models.User, *service.ServiceError) <span class="cov8" title="1">{
-
         if _, err := os.Stat(s.filename); err != nil &amp;&amp; errors.Is(err, os.ErrNotExist) </span><span class="cov8" title="1">{
                 return nil, service.NewServiceError(service.InternalError, fmt.Errorf("file %v not exist", s.filename))
         }</span>
 
         <span class="cov8" title="1">file, err := os.Open(s.filename)
         if err != nil </span><span class="cov0" title="0">{
-                return nil, service.NewServiceError(service.InternalError, errors.New("can't open file"))
+                return nil, service.NewServiceError(service.InternalError, errCantOpenFile)
         }</span>
         <span class="cov8" title="1">defer func() </span><span class="cov8" title="1">{
                 _ = file.Close()
@@ -926,14 +922,14 @@ func (s *XMLService) Users(query, orderField string, orderBy, offset, limit int)
 
         <span class="cov8" title="1">var result []models.User
         for _, client := range clients.Clients </span><span class="cov8" title="1">{
-                Name := client.FirstName + " " + client.LastName
-                if strings.Contains(Name, query) || strings.Contains(client.About, query) </span><span class="cov8" title="1">{
+                name := client.FirstName + " " + client.LastName
+                if strings.Contains(name, query) || strings.Contains(client.About, query) </span><span class="cov8" title="1">{
                         var user models.User
                         user.About = client.About
                         user.Age = client.Age
                         user.Gender = client.Gender
-                        user.Id = client.Id
-                        user.Name = Name
+                        user.ID = client.ID
+                        user.Name = name
                         result = append(result, user)
                 }</span>
         }
@@ -946,13 +942,13 @@ func (s *XMLService) Users(query, orderField string, orderBy, offset, limit int)
         <span class="cov8" title="1">if offset &lt; len(result)+1 &amp;&amp; offset &gt;= 0 </span><span class="cov8" title="1">{
                 result = result[offset:]
         }</span> else<span class="cov8" title="1"> {
-                return nil, service.NewServiceError(service.BadRequest, errors.New("wrong offset"))
+                return nil, service.NewServiceError(service.BadRequest, errWrongOffset)
         }</span>
 
         <span class="cov8" title="1">if limit &lt; len(result) </span><span class="cov8" title="1">{
                 result = result[:limit]
         }</span> else<span class="cov8" title="1"> if limit &lt; 0 </span><span class="cov0" title="0">{
-                return nil, service.NewServiceError(service.BadRequest, errors.New("wrong limit"))
+                return nil, service.NewServiceError(service.BadRequest, errWrongLimit)
         }</span>
 
         <span class="cov8" title="1">return result, nil</span>

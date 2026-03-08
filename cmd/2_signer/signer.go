@@ -18,7 +18,7 @@ func ExecutePipeline(jobs ...job) {
 
 	dataChs := make([]chan any, numWorkers+1)
 
-	for i := range numWorkers {
+	for i := range numWorkers + 1 {
 		dataChs[i] = make(chan any, MaxInputDataLen)
 	}
 
@@ -100,11 +100,12 @@ func MultiHash(in, out chan any) {
 		go func(out chan any, wgForMultiHash *sync.WaitGroup) {
 			defer wgForMultiHash.Done()
 			wg.Wait()
-			var res string
+
+			var sb strings.Builder
 			for _, value := range results {
-				res += value
+				sb.WriteString(value)
 			}
-			out <- res
+			out <- sb.String()
 		}(out, &wgForMultiHash)
 	}
 	wgForMultiHash.Wait()

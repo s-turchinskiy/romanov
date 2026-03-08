@@ -18,17 +18,17 @@ type ServiceError struct {
 	err       error
 }
 
+func NewServiceError(typeError TypeServiceError, err error) *ServiceError {
+	return &ServiceError{
+		TypeError: typeError,
+		err:       err,
+	}
+}
+
 func (e *ServiceError) Error() string {
 	return e.err.Error()
 }
 
 func (e *ServiceError) Unwrap() error {
 	return ErrServiceError
-}
-
-func NewServiceError(typeError TypeServiceError, err error) *ServiceError {
-	return &ServiceError{
-		TypeError: typeError,
-		err:       err,
-	}
 }
