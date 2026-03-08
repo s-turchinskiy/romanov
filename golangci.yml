@@ -1906,8 +1906,8 @@ linters:
 
     mnd:
       # List of enabled checks, see https://github.com/tommy-muehle/go-mnd/#checks for description.
-      # Default: ["argument", "case", "condition", "operation", "return", "assign"]
-      checks:
+       Default: []#["argument", "case", "condition", "operation", "return", "assign"]
+      #checks:
       #  - argument
       #  - case
       #  - condition
