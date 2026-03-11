@@ -20,77 +20,77 @@ patternMSIE.MatchString(browser)
 Количество выделенной памяти почему-то даже стало больше после 1 оптимизации, 1548мб, но regexp.MatchString ушел из анализа
 
 оптимизация 2. io.ReadAll\
-<img width="1227" height="881" alt="Снимок экрана от 2026-03-11 02-05-14" src="https://github.com/user-attachments/assets/ed23ec60-1537-4ccc-8fee-9b613795827b" />
-скриншот 4. теперь самое жирное io.ReadAll, 793 мб. чтение всего файла происходит полностью одномоментно, надо читать по блокам
-заменил
-fileContents, err := ioutil.ReadAll(file)
-lines := strings.Split(string(fileContents), "\n")
-for _, line := range lines {
-на
-scanner := bufio.NewScanner(file)
-for scanner.Scan() {
-line := scanner.Text()
-Количество выделенной памяти стало 726мб
+<img width="1227" height="881" alt="Снимок экрана от 2026-03-11 02-05-14" src="https://github.com/user-attachments/assets/ed23ec60-1537-4ccc-8fee-9b613795827b" />\
+скриншот 4. теперь самое жирное io.ReadAll, 793 мб. чтение всего файла происходит полностью одномоментно, надо читать по блокам\
+заменил\
+fileContents, err := ioutil.ReadAll(file)\
+lines := strings.Split(string(fileContents), "\n")\
+for _, line := range lines {\
+на\
+scanner := bufio.NewScanner(file)\
+for scanner.Scan() {\
+line := scanner.Text()\
+Количество выделенной памяти стало 726мб\
 
 оптимизация 3. easyjson\
-<img width="1634" height="834" alt="Снимок экрана от 2026-03-11 22-10-15" src="https://github.com/user-attachments/assets/fb21b5f1-e914-4c25-bfd4-2f57e5abd000" />
-скриншот 5. теперь самое жирное json.Unmarshal заменил на easyjson
-<img width="1634" height="834" alt="Снимок экрана от 2026-03-11 22-29-56" src="https://github.com/user-attachments/assets/19d5b382-33f1-4fc7-adb0-5f521a5ca92f" />
-скриншот 6. память увеличилась до 1280 мб после добавления сериализации для type User map[string]any
-370	   3844916 ns/op	 2798023 B/op	   37738 allocs/op
+<img width="1634" height="834" alt="Снимок экрана от 2026-03-11 22-10-15" src="https://github.com/user-attachments/assets/fb21b5f1-e914-4c25-bfd4-2f57e5abd000" />\
+скриншот 5. теперь самое жирное json.Unmarshal заменил на easyjson\
+<img width="1634" height="834" alt="Снимок экрана от 2026-03-11 22-29-56" src="https://github.com/user-attachments/assets/19d5b382-33f1-4fc7-adb0-5f521a5ca92f" />\
+скриншот 6. память увеличилась до 1280 мб после добавления сериализации для type User map[string]any\
+370	   3844916 ns/op	 2798023 B/op	   37738 allocs/op\
+\
+в коде из джейсона берется 3 поля browsers,email,name\
+type User заменил на\
+type User struct {\
+Browsers []string `json:"browsers"`\
+Email    string   `json:"email"`\
+Name     string   `json:"name"`\
+}\
+Количество выделенной памяти стало 1050мб, но все остальные цифры уменьшились\
+439	   2449544 ns/op	 2058975 B/op	    9821 allocs/op\
 
-в коде из джейсона берется 3 поля browsers,email,name
-type User заменил на
-type User struct {
-Browsers []string `json:"browsers"`
-Email    string   `json:"email"`
-Name     string   `json:"name"`
-}
-Количество выделенной памяти стало 1050мб, но все остальные цифры уменьшились
-439	   2449544 ns/op	 2058975 B/op	    9821 allocs/op
-
-<img width="1387" height="826" alt="Снимок экрана от 2026-03-11 22-59-44" src="https://github.com/user-attachments/assets/e4ddd80c-2bc3-4493-a116-d39f54976448" />
-Скриншот 7. Открыл View - Source
-больше всего flat выделяется на строчках
-line := scanner.Text()
-err = easyjson.Unmarshal([]byte(line), &user)
-не заметил этого раньше, по сути сначала из байт преобразуется в строку, а потом обратно
-заменил на err = easyjson.Unmarshal(scanner.Bytes(), &user)
-<img width="1605" height="622" alt="Снимок экрана от 2026-03-11 23-04-40" src="https://github.com/user-attachments/assets/44d99ebf-da64-42d1-8587-2cb42cfde25a" />
-скриншот 8. количество выделяемой памяти значительно снизилось до 595 мб
-613	   2110532 ns/op	  871508 B/op	    7821 allocs/op
-
+<img width="1387" height="826" alt="Снимок экрана от 2026-03-11 22-59-44" src="https://github.com/user-attachments/assets/e4ddd80c-2bc3-4493-a116-d39f54976448" />\
+Скриншот 7. Открыл View - Source\
+больше всего flat выделяется на строчках\
+line := scanner.Text()\
+err = easyjson.Unmarshal([]byte(line), &user)\
+не заметил этого раньше, по сути сначала из байт преобразуется в строку, а потом обратно\
+заменил на err = easyjson.Unmarshal(scanner.Bytes(), &user)\
+<img width="1605" height="622" alt="Снимок экрана от 2026-03-11 23-04-40" src="https://github.com/user-attachments/assets/44d99ebf-da64-42d1-8587-2cb42cfde25a" />\
+скриншот 8. количество выделяемой памяти значительно снизилось до 595 мб\
+613	   2110532 ns/op	  871508 B/op	    7821 allocs/op\
+\
 оптимизация 4\
-<img width="743" height="437" alt="Снимок экрана от 2026-03-11 23-09-06" src="https://github.com/user-attachments/assets/1da76df3-7073-4fa9-8f1c-1b898c28c3da" />
-скриншот 9. видно что много памяти выделяется на users = append(users, user)
-при этом слайс изначально определяется нулевого размера users := make([]data.User, 0)
-надо определить его размер равным количеству строк
-добавил функцию lineCounter
-count, err := lineCounter(file)
-_, err = file.Seek(0, io.SeekStart)
-users := make([]data.User, 0, count)
-637	   2092235 ns/op	  920841 B/op	    7813 allocs/op
-улучшилось только количество операций, все остальное или осталось неизменным или чуть ухудшилось
-
+<img width="743" height="437" alt="Снимок экрана от 2026-03-11 23-09-06" src="https://github.com/user-attachments/assets/1da76df3-7073-4fa9-8f1c-1b898c28c3da" />\
+скриншот 9. видно что много памяти выделяется на users = append(users, user)\
+при этом слайс изначально определяется нулевого размера users := make([]data.User, 0)\
+надо определить его размер равным количеству строк\
+добавил функцию lineCounter\
+count, err := lineCounter(file)\
+_, err = file.Seek(0, io.SeekStart)\
+users := make([]data.User, 0, count)\
+637	   2092235 ns/op	  920841 B/op	    7813 allocs/op\
+улучшилось только количество операций, все остальное или осталось неизменным или чуть ухудшилось\
+\
 оптимизация 5\
-View - Source больше всего flat выделяется теперь на строчке
-foundUsers += fmt.Sprintf("[%d] %s <%s>\n", i, user.Name, email)
-foundUsers - это строка. правильно суммировать строки не через +=, а через strings.Builder
-заменил на него
-655	   1946396 ns/op	  750327 B/op	    7741 allocs/op
+View - Source больше всего flat выделяется теперь на строчке\
+foundUsers += fmt.Sprintf("[%d] %s <%s>\n", i, user.Name, email)\
+foundUsers - это строка. правильно суммировать строки не через +=, а через strings.Builder\
+заменил на него\
+655	   1946396 ns/op	  750327 B/op	    7741 allocs/op\
 <img width="1826" height="581" alt="Снимок экрана от 2026-03-11 23-40-20" src="https://github.com/user-attachments/assets/34121519-0cdb-4758-bb6c-3267cc7840fc" />\
-скриншот 10. память стала равна 529мб и значительно упало выделение памяти на операцию с 920841 до 750327
-
+скриншот 10. память стала равна 529мб и значительно упало выделение памяти на операцию с 920841 до 750327\
+\
 оптимизация 6\
-тек значение памяти 750327 B/op, нужно 559910 B/op
-без профайлера видно, что создается слайс users и на него выделяется память. правильно сделать через горутины, получили из файла юзера и передали его в горутину-обработчик.
-но в задании явно сказано, что нельзя использовать горутины, так что просто объединил циклы, чтобы сразу после получения юзера он обрабатывался, а не помещался в слайс
-ну и даже в source сейчас строчки с самыми большими значениеми
-users := make([]data.User, 0, count)
-users = append(users, user)
-663	   1902897 ns/op	  578345 B/op	    7738 allocs/op
-выделение памяти упало до нужного значения
-
+тек значение памяти 750327 B/op, нужно 559910 B/op\
+без профайлера видно, что создается слайс users и на него выделяется память. правильно сделать через горутины, получили из файла юзера и передали его в горутину-обработчик.\
+но в задании явно сказано, что нельзя использовать горутины, так что просто объединил циклы, чтобы сразу после получения юзера он обрабатывался, а не помещался в слайс\
+ну и даже в source сейчас строчки с самыми большими значениями\
+users := make([]data.User, 0, count)\
+users = append(users, user)\
+663	   1902897 ns/op	  578345 B/op	    7738 allocs/op\
+выделение памяти упало до нужного значения\
+\
 Результат\
 <img width="1826" height="581" alt="Снимок экрана от 2026-03-11 23-55-26" src="https://github.com/user-attachments/assets/758951e7-a2da-49cd-bff9-4760ea4d20b0" />\
 Должно быть: BenchmarkSolution-8 500 2782432 ns/op 559910 B/op 10422 allocs/op\
