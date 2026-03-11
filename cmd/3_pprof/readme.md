@@ -78,7 +78,7 @@ foundUsers += fmt.Sprintf("[%d] %s <%s>\n", i, user.Name, email)
 foundUsers - это строка. правильно суммировать строки не через +=, а через strings.Builder
 заменил на него
 655	   1946396 ns/op	  750327 B/op	    7741 allocs/op
-<img width="1826" height="581" alt="Снимок экрана от 2026-03-11 23-40-20" src="https://github.com/user-attachments/assets/34121519-0cdb-4758-bb6c-3267cc7840fc" />
+<img width="1826" height="581" alt="Снимок экрана от 2026-03-11 23-40-20" src="https://github.com/user-attachments/assets/34121519-0cdb-4758-bb6c-3267cc7840fc" />\
 скриншот 10. память стала равна 529мб и значительно упало выделение памяти на операцию с 920841 до 750327
 
 оптимизация 6
@@ -92,13 +92,13 @@ users = append(users, user)
 выделение памяти упало до нужного значения
 
 Результат
-<img width="1826" height="581" alt="Снимок экрана от 2026-03-11 23-55-26" src="https://github.com/user-attachments/assets/758951e7-a2da-49cd-bff9-4760ea4d20b0" />
-Должно быть: BenchmarkSolution-8 500 2782432 ns/op 559910 B/op 10422 allocs/op
-Результат: BenchmarkFast-16    649	1883548 ns/op 573611 B/op 7656 allocs/op
-500 -> 649
-2782432 ns/op -> 1883548 ns/op
-559910 B/op -> 573611 B/op
-10422 allocs/op -> 7656 allocs/op
+<img width="1826" height="581" alt="Снимок экрана от 2026-03-11 23-55-26" src="https://github.com/user-attachments/assets/758951e7-a2da-49cd-bff9-4760ea4d20b0" />\
+Должно быть: BenchmarkSolution-8 500 2782432 ns/op 559910 B/op 10422 allocs/op\
+Результат: BenchmarkFast-16    649	1883548 ns/op 573611 B/op 7656 allocs/op\
+500 -> 649\
+2782432 ns/op -> 1883548 ns/op\
+559910 B/op -> 573611 B/op\
+10422 allocs/op -> 7656 allocs/op\
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
