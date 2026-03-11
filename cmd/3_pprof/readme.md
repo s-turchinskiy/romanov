@@ -6,9 +6,11 @@ GOGC=off go test -bench . -benchmem -cpuprofile=cpu.pprof -memprofile=mem.pprof
 Оптимизация оперативной памяти
 go tool pprof -http=":9090" mem.pprof
 откроется http://localhost:9090/ui/
-скриншот 1. выделяем синим функцию для оптимизации и нажимаем Refine -> Show from. Наша функция потребила 1300+ мб оперативки
+<img width="1034" height="491" alt="Снимок экрана от 2026-03-11 01-31-41" src="https://github.com/user-attachments/assets/d4e60194-d53a-49d5-9fb3-3122bdb72e42" />
+выделяем синим функцию для оптимизации и нажимаем Refine -> Show from. Наша функция потребила 1300+ мб оперативки
 
 оптимизация 1. regexp.MatchString
+<img width="1227" height="881" alt="Снимок экрана от 2026-03-11 01-43-04" src="https://github.com/user-attachments/assets/00a52998-6525-46bc-b896-fa7f0af19e9b" />
 скриншот 2. больше всего потребляет regexp.MatchString, которая вызывает regexp.Compile. https://habr.com/ru/companies/badoo/articles/301990/ из этой статьи известно, что надо заранее компилировать, а не каждый раз
 заменим в коде 2 вызова regexp.MatchString("Android", browser) и regexp.MatchString("MSIE", browser) на
 var patternAndroid = regexp.MustCompile("Android")
@@ -18,6 +20,7 @@ patternMSIE.MatchString(browser)
 Количество выделенной памяти почему-то даже стало больше после 1 оптимизации, 1548мб, но regexp.MatchString ушел из анализа
 
 оптимизация 2. io.ReadAll
+<img width="1227" height="881" alt="Снимок экрана от 2026-03-11 02-05-14" src="https://github.com/user-attachments/assets/ed23ec60-1537-4ccc-8fee-9b613795827b" />
 скриншот 4. теперь самое жирное io.ReadAll, 793 мб. чтение всего файла происходит полностью одномоментно, надо читать по блокам
 заменил
 fileContents, err := ioutil.ReadAll(file)
@@ -30,7 +33,9 @@ line := scanner.Text()
 Количество выделенной памяти стало 726мб
 
 оптимизация 3. easyjson
+<img width="1634" height="834" alt="Снимок экрана от 2026-03-11 22-10-15" src="https://github.com/user-attachments/assets/fb21b5f1-e914-4c25-bfd4-2f57e5abd000" />
 скриншот 5. теперь самое жирное json.Unmarshal заменил на easyjson
+<img width="1634" height="834" alt="Снимок экрана от 2026-03-11 22-29-56" src="https://github.com/user-attachments/assets/19d5b382-33f1-4fc7-adb0-5f521a5ca92f" />
 скриншот 6. память увеличилась до 1280 мб после добавления сериализации для type User map[string]any
 370	   3844916 ns/op	 2798023 B/op	   37738 allocs/op
 
@@ -44,16 +49,19 @@ Name     string   `json:"name"`
 Количество выделенной памяти стало 1050мб, но все остальные цифры уменьшились
 439	   2449544 ns/op	 2058975 B/op	    9821 allocs/op
 
+<img width="1387" height="826" alt="Снимок экрана от 2026-03-11 22-59-44" src="https://github.com/user-attachments/assets/e4ddd80c-2bc3-4493-a116-d39f54976448" />
 Скриншот 7. Открыл View - Source
 больше всего flat выделяется на строчках
 line := scanner.Text()
 err = easyjson.Unmarshal([]byte(line), &user)
 не заметил этого раньше, по сути сначала из байт преобразуется в строку, а потом обратно
 заменил на err = easyjson.Unmarshal(scanner.Bytes(), &user)
+<img width="1605" height="622" alt="Снимок экрана от 2026-03-11 23-04-40" src="https://github.com/user-attachments/assets/44d99ebf-da64-42d1-8587-2cb42cfde25a" />
 скриншот 8. количество выделяемой памяти значительно снизилось до 595 мб
 613	   2110532 ns/op	  871508 B/op	    7821 allocs/op
 
 оптимизация 4.
+<img width="743" height="437" alt="Снимок экрана от 2026-03-11 23-09-06" src="https://github.com/user-attachments/assets/1da76df3-7073-4fa9-8f1c-1b898c28c3da" />
 скриншот 9. видно что много памяти выделяется на users = append(users, user)
 при этом слайс изначально определяется нулевого размера users := make([]data.User, 0)
 надо определить его размер равным количеству строк
@@ -70,6 +78,7 @@ foundUsers += fmt.Sprintf("[%d] %s <%s>\n", i, user.Name, email)
 foundUsers - это строка. правильно суммировать строки не через +=, а через strings.Builder
 заменил на него
 655	   1946396 ns/op	  750327 B/op	    7741 allocs/op
+<img width="1826" height="581" alt="Снимок экрана от 2026-03-11 23-40-20" src="https://github.com/user-attachments/assets/34121519-0cdb-4758-bb6c-3267cc7840fc" />
 скриншот 10. память стала равна 529мб и значительно упало выделение памяти на операцию с 920841 до 750327
 
 оптимизация 6
@@ -83,6 +92,7 @@ users = append(users, user)
 выделение памяти упало до нужного значения
 
 Результат
+<img width="1826" height="581" alt="Снимок экрана от 2026-03-11 23-55-26" src="https://github.com/user-attachments/assets/758951e7-a2da-49cd-bff9-4760ea4d20b0" />
 скриншот 11
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
