@@ -41,7 +41,7 @@ func FastSearch(out io.Writer) {
 	// users := make([]data.User, 0, count)
 	scanner := bufio.NewScanner(file)
 
-	var i int = -1
+	var i = -1
 	for scanner.Scan() {
 		i++
 		var user data.User
@@ -89,13 +89,13 @@ func FastSearch(out io.Writer) {
 			}
 		}
 
-		if !(isAndroid && isMSIE) {
+		if !isAndroid || !isMSIE {
 			continue
 		}
 
 		// log.Println("Android and MSIE user:", user["name"], user["email"])
 		email := r.ReplaceAllString(user.Email, " [at] ")
-		foundUsersSb.WriteString(fmt.Sprintf("[%d] %s <%s>\n", i, user.Name, email))
+		_, _ = fmt.Fprintf(&foundUsersSb, "[%d] %s <%s>\n", i, user.Name, email)
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -107,10 +107,11 @@ func FastSearch(out io.Writer) {
 
 	}*/
 
-	fmt.Fprintln(out, "found users:\n"+foundUsersSb.String())
-	fmt.Fprintln(out, "Total unique browsers", len(seenBrowsers))
+	_, _ = fmt.Fprintln(out, "found users:\n"+foundUsersSb.String())
+	_, _ = fmt.Fprintln(out, "Total unique browsers", len(seenBrowsers))
 }
 
+// nolint
 func lineCounter(r io.Reader) (int, error) {
 	buf := make([]byte, 32*1024)
 	count := 0
