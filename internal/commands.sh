@@ -12,3 +12,7 @@ cd /home/stanislav/go/romanov/ && git checkout -b hw_4 && git add . && git commi
 #
 go install mvdan.cc/gofumpt@latest
 gofumpt -l -w .
+
+#
+go generate ./data/data.go
+
