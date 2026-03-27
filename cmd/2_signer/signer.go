@@ -11,33 +11,36 @@ import (
 )
 
 func ExecutePipeline(jobs ...job) {
+
 	numWorkers := len(jobs)
 
 	wg := sync.WaitGroup{}
 	wg.Add(numWorkers)
 
-	dataChs := make([]chan any, numWorkers+1)
+	dataChs := make([]chan interface{}, numWorkers+1)
 
-	for i := range numWorkers + 1 {
-		dataChs[i] = make(chan any, MaxInputDataLen)
+	for i := 0; i < numWorkers+1; i++ {
+
+		dataChs[i] = make(chan interface{}, MaxInputDataLen)
+
 	}
 
-	inCh := make(chan any, MaxInputDataLen)
-	for _, job := range jobs {
-		outCh := make(chan any, MaxInputDataLen)
-
-		go func() {
-			defer wg.Done()
-			job(inCh, outCh)
-			// log.Println("job end", time.Now()) // как получить имена джоб?
-			close(outCh)
-		}()
-
-		inCh = outCh
-
+	for i, job := range jobs {
+		go runJob(job, dataChs[i], dataChs[i+1], &wg, i == 0)
 	}
 
 	wg.Wait()
+}
+
+func runJob(job job, in, out chan interface{}, wg *sync.WaitGroup, firstJob bool) {
+	defer wg.Done()
+	job(in, out)
+	//а как получить имена джоб?
+	//log.Println("job end", time.Now())
+	close(out)
+	if firstJob {
+		close(in)
+	}
 }
 
 func SingleHash(in, out chan any) {
