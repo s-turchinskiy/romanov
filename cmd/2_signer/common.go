@@ -1,3 +1,4 @@
+//nolint:all
 package main
 
 import (
@@ -9,7 +10,7 @@ import (
 	"time"
 )
 
-type job func(in, out chan interface{})
+type job func(in, out chan any)
 
 const (
 	MaxInputDataLen = 100

@@ -29,7 +29,6 @@ func main() {
 }
 
 func dirTree(out io.Writer, dir string, printFiles bool) error {
-
 	return printDir(out, dir, printFiles, "")
 }
 
@@ -59,7 +58,6 @@ func selectionFiles(printFiles bool, list []os.DirEntry) []os.DirEntry {
 		if item.IsDir() {
 			newList = append(newList, item)
 		}
-
 	}
 	return newList
 }
@@ -67,7 +65,6 @@ func selectionFiles(printFiles bool, list []os.DirEntry) []os.DirEntry {
 func printItems(out io.Writer, dir string, printFiles bool, shift string, list []os.DirEntry) error {
 	lastIndex := len(list) - 1
 	for i, item := range list {
-
 		fileFullName := filepath.Join(dir, item.Name())
 
 		var builder strings.Builder
@@ -95,9 +92,9 @@ func printItems(out io.Writer, dir string, printFiles bool, shift string, list [
 		if item.IsDir() {
 			newShift := shift
 			if i != lastIndex {
-				newShift = newShift + shiftTopLevel
+				newShift += shiftTopLevel
 			}
-			newShift = newShift + "\t"
+			newShift += "\t"
 
 			err = printDir(out, fileFullName, printFiles, newShift)
 			if err != nil {
@@ -109,7 +106,6 @@ func printItems(out io.Writer, dir string, printFiles bool, shift string, list [
 }
 
 func addSizeInfoFirFile(item os.DirEntry, builder *strings.Builder, fileFullName string) error {
-
 	if item.IsDir() {
 		return nil
 	}
