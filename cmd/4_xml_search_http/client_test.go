@@ -239,9 +239,9 @@ func (h *TestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		time.Sleep(1100 * time.Millisecond)
 	case "broken_json_bad_request":
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("broken_json"))
+		_, _ = w.Write([]byte("broken_json"))
 	case "broken_json_status_ok":
-		w.Write([]byte("broken_json"))
+		_, _ = w.Write([]byte("broken_json"))
 	}
 
 }

@@ -16,3 +16,6 @@ gofumpt -l -w .
 #
 go generate ./data/data.go
 
+#
+golangci-lint run -c golangci.yml
+

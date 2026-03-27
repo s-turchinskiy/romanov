@@ -65,7 +65,7 @@
 				
 				<option value="file4">github.com/s-turchinskiy/romanov/cmd/3_pprof/data/data_easyjson.go (42.6%)</option>
 				
-				<option value="file5">github.com/s-turchinskiy/romanov/cmd/3_pprof/fast.go (78.6%)</option>
+				<option value="file5">github.com/s-turchinskiy/romanov/cmd/3_pprof/fast.go (78.2%)</option>
 				
 				<option value="file6">github.com/s-turchinskiy/romanov/cmd/4_xml_search_http/client.go (100.0%)</option>
 				
@@ -721,6 +721,11 @@ import (
         "github.com/s-turchinskiy/romanov/cmd/3_pprof/data"
 )
 
+const (
+        android = "Android"
+        msie    = "MSIE"
+)
+
 func FastSearch(out io.Writer) <span class="cov8" title="1">{
         file, err := os.Open(filePath)
         if err != nil </span><span class="cov0" title="0">{
@@ -728,8 +733,6 @@ func FastSearch(out io.Writer) <span class="cov8" title="1">{
         }
 
         <span class="cov8" title="1">r := regexp.MustCompile("@")
-        patternAndroid := regexp.MustCompile("Android")
-        patternMSIE := regexp.MustCompile("MSIE")
 
         seenBrowsers := []string{}
         uniqueBrowsers := 0
@@ -763,7 +766,8 @@ func FastSearch(out io.Writer) <span class="cov8" title="1">{
                 isMSIE := false
 
                 for _, browser := range user.Browsers </span><span class="cov8" title="1">{
-                        if ok := patternAndroid.MatchString(browser); ok </span><span class="cov8" title="1">{
+                        strings.Contains(browser, android)
+                        if strings.Contains(browser, android) </span><span class="cov8" title="1">{
                                 isAndroid = true
                                 notSeenBefore := true
                                 for _, item := range seenBrowsers </span><span class="cov8" title="1">{
@@ -780,7 +784,7 @@ func FastSearch(out io.Writer) <span class="cov8" title="1">{
                 }
 
                 <span class="cov8" title="1">for _, browser := range user.Browsers </span><span class="cov8" title="1">{
-                        if ok := patternMSIE.MatchString(browser); ok </span><span class="cov8" title="1">{
+                        if strings.Contains(browser, msie) </span><span class="cov8" title="1">{
                                 isMSIE = true
                                 notSeenBefore := true
                                 for _, item := range seenBrowsers </span><span class="cov8" title="1">{
