@@ -99,6 +99,11 @@ users = append(users, user)\
 2782432 ns/op -> 1883548 ns/op\
 559910 B/op -> 573611 B/op\
 10422 allocs/op -> 7656 allocs/op
+\
+P.S. После замены regexp (patternMSIE := regexp.MustCompile("MSIE") patternMSIE.MatchString(browser)) на strings.Contains(browser,msie)
+Результат:
+BenchmarkFast-16    	     799	   1608247 ns/op	  570029 B/op	    7622 allocs/op
+
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////

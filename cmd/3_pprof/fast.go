@@ -14,6 +14,11 @@ import (
 	"github.com/s-turchinskiy/romanov/cmd/3_pprof/data"
 )
 
+const (
+	android = "Android"
+	msie    = "MSIE"
+)
+
 func FastSearch(out io.Writer) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -21,8 +26,6 @@ func FastSearch(out io.Writer) {
 	}
 
 	r := regexp.MustCompile("@")
-	patternAndroid := regexp.MustCompile("Android")
-	patternMSIE := regexp.MustCompile("MSIE")
 
 	seenBrowsers := []string{}
 	uniqueBrowsers := 0
@@ -56,7 +59,8 @@ func FastSearch(out io.Writer) {
 		isMSIE := false
 
 		for _, browser := range user.Browsers {
-			if ok := patternAndroid.MatchString(browser); ok {
+			strings.Contains(browser, android)
+			if strings.Contains(browser, android) {
 				isAndroid = true
 				notSeenBefore := true
 				for _, item := range seenBrowsers {
@@ -73,7 +77,7 @@ func FastSearch(out io.Writer) {
 		}
 
 		for _, browser := range user.Browsers {
-			if ok := patternMSIE.MatchString(browser); ok {
+			if strings.Contains(browser, msie) {
 				isMSIE = true
 				notSeenBefore := true
 				for _, item := range seenBrowsers {
