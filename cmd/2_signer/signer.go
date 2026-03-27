@@ -22,10 +22,6 @@ func ExecutePipeline(jobs ...job) {
 		dataChs[i] = make(chan any, MaxInputDataLen)
 	}
 
-<<<<<<< HEAD
-	for i, job := range jobs {
-		go runJob(job, dataChs[i], dataChs[i+1], &wg, i == 0)
-=======
 	inCh := make(chan any, MaxInputDataLen)
 	for _, job := range jobs {
 		outCh := make(chan any, MaxInputDataLen)
@@ -39,26 +35,11 @@ func ExecutePipeline(jobs ...job) {
 
 		inCh = outCh
 
->>>>>>> afbf02f (all)
 	}
 
 	wg.Wait()
 }
 
-<<<<<<< HEAD
-func runJob(job job, in, out chan any, wg *sync.WaitGroup, firstJob bool) {
-	defer wg.Done()
-	job(in, out)
-	// а как получить имена джоб?
-	// log.Println("job end", time.Now())
-	close(out)
-	if firstJob {
-		close(in)
-	}
-}
-
-=======
->>>>>>> afbf02f (all)
 func SingleHash(in, out chan any) {
 	wg := sync.WaitGroup{}
 
@@ -73,14 +54,6 @@ func SingleHash(in, out chan any) {
 
 		go func() {
 			crc32First <- DataSignerCrc32(data)
-<<<<<<< HEAD
-		}()
-
-		md5 := DataSignerMd5(data)
-		go func(md5 string) {
-			crc32Second <- DataSignerCrc32(md5)
-		}(md5)
-=======
 			close(crc32First)
 		}()
 
@@ -89,18 +62,12 @@ func SingleHash(in, out chan any) {
 			crc32Second <- DataSignerCrc32(md5)
 			close(crc32Second)
 		}()
->>>>>>> afbf02f (all)
 
 		wg.Add(1)
 		go func(crc32First, crc32Second chan string, wg *sync.WaitGroup) {
 			defer wg.Done()
 			result := <-crc32First + "~" + <-crc32Second
 			out <- result
-<<<<<<< HEAD
-			close(crc32First)
-			close(crc32Second)
-=======
->>>>>>> afbf02f (all)
 		}(crc32First, crc32Second, &wg)
 	}
 
@@ -146,10 +113,6 @@ func MultiHash(in, out chan any) {
 
 func CombineResults(in, out chan any) {
 	var results []string
-<<<<<<< HEAD
-	for value := range in {
-		results = append(results, value.(string))
-=======
 	for untypedValue := range in {
 		data, err := stringFromUntypedValue(untypedValue)
 		if err != nil {
@@ -157,7 +120,6 @@ func CombineResults(in, out chan any) {
 		}
 
 		results = append(results, data)
->>>>>>> afbf02f (all)
 	}
 
 	sort.Strings(results)
