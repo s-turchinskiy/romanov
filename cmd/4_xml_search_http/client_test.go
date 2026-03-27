@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"testing"
@@ -35,7 +36,9 @@ func TestSearchClient_FindUsers(t *testing.T) {
 		10*time.Second)
 	srvWithWrongFile := httptest.NewServer(hndlrWithWrongFile)
 
-	for _, tt := range testCases(srv.URL, srvWithWrongFile.URL) {
+	srvOnlyImpossibleCases := httptest.NewServer(&TestHandler{})
+
+	for _, tt := range testCases(srv.URL, srvWithWrongFile.URL, srvOnlyImpossibleCases.URL) {
 		t.Run(tt.name, func(t *testing.T) {
 			clnt := &SearchClient{
 				AccessToken: tt.fields.AccessToken,
@@ -53,7 +56,7 @@ func TestSearchClient_FindUsers(t *testing.T) {
 	}
 }
 
-func testCases(url, urlWrong string) []testCase {
+func testCases(url, urlWrong, urlImpossible string) []testCase {
 	fieldWithAccessToken := fields{
 		AccessToken: "TestToken",
 		URL:         url,
@@ -200,5 +203,45 @@ func testCases(url, urlWrong string) []testCase {
 			want:    nil,
 			wantErr: true,
 		},
+		{
+			name:    "timeout",
+			fields:  fields{AccessToken: "timeout", URL: urlImpossible},
+			req:     models.SearchRequest{},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "broken_json_bad_request",
+			fields:  fields{AccessToken: "broken_json_bad_request", URL: urlImpossible},
+			req:     models.SearchRequest{},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "broken_json_status_ok",
+			fields:  fields{AccessToken: "broken_json_status_ok", URL: urlImpossible},
+			req:     models.SearchRequest{},
+			want:    nil,
+			wantErr: true,
+		},
 	}
+}
+
+type TestHandler struct {
+}
+
+func (h *TestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+	accessToken := r.Header[http.CanonicalHeaderKey("AccessToken")][0]
+
+	switch accessToken {
+	case "timeout":
+		time.Sleep(1100 * time.Millisecond)
+	case "broken_json_bad_request":
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("broken_json"))
+	case "broken_json_status_ok":
+		w.Write([]byte("broken_json"))
+	}
+
 }

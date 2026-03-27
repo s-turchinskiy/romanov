@@ -59,19 +59,25 @@
 				
 				<option value="file1">github.com/s-turchinskiy/romanov/cmd/2_signer/common.go (0.0%)</option>
 				
-				<option value="file2">github.com/s-turchinskiy/romanov/cmd/2_signer/signer.go (80.2%)</option>
+				<option value="file2">github.com/s-turchinskiy/romanov/cmd/2_signer/signer.go (79.0%)</option>
 				
-				<option value="file3">github.com/s-turchinskiy/romanov/cmd/4_xml_search_http/client.go (92.9%)</option>
+				<option value="file3">github.com/s-turchinskiy/romanov/cmd/3_pprof/common.go (89.3%)</option>
 				
-				<option value="file4">github.com/s-turchinskiy/romanov/cmd/4_xml_search_http/main.go (0.0%)</option>
+				<option value="file4">github.com/s-turchinskiy/romanov/cmd/3_pprof/data/data_easyjson.go (42.6%)</option>
 				
-				<option value="file5">github.com/s-turchinskiy/romanov/internal/4_xml_search_http/handlers/handlers.go (77.6%)</option>
+				<option value="file5">github.com/s-turchinskiy/romanov/cmd/3_pprof/fast.go (78.6%)</option>
 				
-				<option value="file6">github.com/s-turchinskiy/romanov/internal/4_xml_search_http/service/service.go (21.7%)</option>
+				<option value="file6">github.com/s-turchinskiy/romanov/cmd/4_xml_search_http/client.go (100.0%)</option>
 				
-				<option value="file7">github.com/s-turchinskiy/romanov/internal/4_xml_search_http/service/service_error.go (66.7%)</option>
+				<option value="file7">github.com/s-turchinskiy/romanov/cmd/4_xml_search_http/main.go (0.0%)</option>
 				
-				<option value="file8">github.com/s-turchinskiy/romanov/internal/4_xml_search_http/service/xml_repository/xml_repository.go (91.2%)</option>
+				<option value="file8">github.com/s-turchinskiy/romanov/internal/4_xml_search_http/handlers/handlers.go (77.6%)</option>
+				
+				<option value="file9">github.com/s-turchinskiy/romanov/internal/4_xml_search_http/service/service.go (21.7%)</option>
+				
+				<option value="file10">github.com/s-turchinskiy/romanov/internal/4_xml_search_http/service/service_error.go (66.7%)</option>
+				
+				<option value="file11">github.com/s-turchinskiy/romanov/internal/4_xml_search_http/service/xml_repository/xml_repository.go (91.2%)</option>
 				
 				</select>
 			</div>
@@ -290,33 +296,24 @@ import (
 )
 
 func ExecutePipeline(jobs ...job) <span class="cov8" title="1">{
-        numWorkers := len(jobs)
-
         wg := sync.WaitGroup{}
-        wg.Add(numWorkers)
+        wg.Add(len(jobs))
 
-        dataChs := make([]chan any, numWorkers+1)
+        inCh := make(chan any, MaxInputDataLen)
+        for _, j := range jobs </span><span class="cov8" title="1">{
+                outCh := make(chan any, MaxInputDataLen)
 
-        for i := range numWorkers + 1 </span><span class="cov8" title="1">{
-                dataChs[i] = make(chan any, MaxInputDataLen)
-        }</span>
+                go func(inCh chan any) </span><span class="cov8" title="1">{
+                        defer wg.Done()
+                        j(inCh, outCh)
+                        // log.Println("job end", time.Now()) // как получить имена джоб?
+                        close(outCh)
+                }</span>(inCh)
 
-        <span class="cov8" title="1">for i, job := range jobs </span><span class="cov8" title="1">{
-                go runJob(job, dataChs[i], dataChs[i+1], &amp;wg, i == 0)
-        }</span>
+                <span class="cov8" title="1">inCh = outCh</span>
+        }
 
         <span class="cov8" title="1">wg.Wait()</span>
-}
-
-func runJob(job job, in, out chan any, wg *sync.WaitGroup, firstJob bool) <span class="cov8" title="1">{
-        defer wg.Done()
-        job(in, out)
-        // а как получить имена джоб?
-        // log.Println("job end", time.Now())
-        close(out)
-        if firstJob </span><span class="cov8" title="1">{
-                close(in)
-        }</span>
 }
 
 func SingleHash(in, out chan any) <span class="cov8" title="1">{
@@ -333,20 +330,20 @@ func SingleHash(in, out chan any) <span class="cov8" title="1">{
 
                 go func() </span><span class="cov8" title="1">{
                         crc32First &lt;- DataSignerCrc32(data)
+                        close(crc32First)
                 }</span>()
 
                 <span class="cov8" title="1">md5 := DataSignerMd5(data)
-                go func(md5 string) </span><span class="cov8" title="1">{
+                go func() </span><span class="cov8" title="1">{
                         crc32Second &lt;- DataSignerCrc32(md5)
-                }</span>(md5)
+                        close(crc32Second)
+                }</span>()
 
                 <span class="cov8" title="1">wg.Add(1)
                 go func(crc32First, crc32Second chan string, wg *sync.WaitGroup) </span><span class="cov8" title="1">{
                         defer wg.Done()
                         result := &lt;-crc32First + "~" + &lt;-crc32Second
                         out &lt;- result
-                        close(crc32First)
-                        close(crc32Second)
                 }</span>(crc32First, crc32Second, &amp;wg)
         }
 
@@ -392,9 +389,14 @@ func MultiHash(in, out chan any) <span class="cov8" title="1">{
 
 func CombineResults(in, out chan any) <span class="cov8" title="1">{
         var results []string
-        for value := range in </span><span class="cov8" title="1">{
-                results = append(results, value.(string))
-        }</span>
+        for untypedValue := range in </span><span class="cov8" title="1">{
+                data, err := stringFromUntypedValue(untypedValue)
+                if err != nil </span><span class="cov0" title="0">{
+                        log.Fatal(err)
+                }</span>
+
+                <span class="cov8" title="1">results = append(results, data)</span>
+        }
 
         <span class="cov8" title="1">sort.Strings(results)
 
@@ -422,7 +424,7 @@ func main() <span class="cov0" title="0">{
         inputData := []int{0, 1, 1, 2, 3, 5, 8}
 
         hashSignJobs := []job{
-                job(func(in, out chan any) </span><span class="cov0" title="0">{
+                job(func(_, out chan any) </span><span class="cov0" title="0">{
                         for _, fibNum := range inputData </span><span class="cov0" title="0">{
                                 out &lt;- fibNum
                         }</span>
@@ -430,7 +432,7 @@ func main() <span class="cov0" title="0">{
                 job(SingleHash),
                 job(MultiHash),
                 job(CombineResults),
-                job(func(in, out chan any) <span class="cov0" title="0">{
+                job(func(in, _ chan any) <span class="cov0" title="0">{
                         dataRaw := &lt;-in
                         _, ok := dataRaw.(string)
                         if !ok </span><span class="cov0" title="0">{
@@ -449,7 +451,395 @@ func main() <span class="cov0" title="0">{
 }
 </pre>
 		
-		<pre class="file" id="file3" style="display: none">//nolint:all
+		<pre class="file" id="file3" style="display: none">// nolint
+package main
+
+import (
+        "encoding/json"
+        "fmt"
+        "io"
+        "io/ioutil"
+        "os"
+        "regexp"
+        "strings"
+        // "log"
+)
+
+const filePath string = "./data/users.txt"
+
+func SlowSearch(out io.Writer) <span class="cov8" title="1">{
+        file, err := os.Open(filePath)
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+        <span class="cov8" title="1">fileContents, err := ioutil.ReadAll(file)
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+        <span class="cov8" title="1">r := regexp.MustCompile("@")
+        seenBrowsers := []string{}
+        uniqueBrowsers := 0
+        foundUsers := ""
+
+        lines := strings.Split(string(fileContents), "\n")
+
+        users := make([]map[string]interface{}, 0)
+        for _, line := range lines </span><span class="cov8" title="1">{
+                user := make(map[string]interface{})
+                // fmt.Printf("%v %v\n", err, line)
+                err := json.Unmarshal([]byte(line), &amp;user)
+                if err != nil </span><span class="cov0" title="0">{
+                        panic(err)</span>
+                }
+                <span class="cov8" title="1">users = append(users, user)</span>
+        }
+
+        <span class="cov8" title="1">for i, user := range users </span><span class="cov8" title="1">{
+
+                isAndroid := false
+                isMSIE := false
+
+                browsers, ok := user["browsers"].([]interface{})
+                if !ok </span><span class="cov0" title="0">{
+                        // log.Println("cant cast browsers")
+                        continue</span>
+                }
+
+                <span class="cov8" title="1">for _, browserRaw := range browsers </span><span class="cov8" title="1">{
+                        browser, ok := browserRaw.(string)
+                        if !ok </span><span class="cov0" title="0">{
+                                // log.Println("cant cast browser to string")
+                                continue</span>
+                        }
+                        <span class="cov8" title="1">if ok, err := regexp.MatchString("Android", browser); ok &amp;&amp; err == nil </span><span class="cov8" title="1">{
+                                isAndroid = true
+                                notSeenBefore := true
+                                for _, item := range seenBrowsers </span><span class="cov8" title="1">{
+                                        if item == browser </span><span class="cov8" title="1">{
+                                                notSeenBefore = false
+                                        }</span>
+                                }
+                                <span class="cov8" title="1">if notSeenBefore </span><span class="cov8" title="1">{
+                                        // log.Printf("SLOW New browser: %s, first seen: %s", browser, user["name"])
+                                        seenBrowsers = append(seenBrowsers, browser)
+                                        uniqueBrowsers++
+                                }</span>
+                        }
+                }
+
+                <span class="cov8" title="1">for _, browserRaw := range browsers </span><span class="cov8" title="1">{
+                        browser, ok := browserRaw.(string)
+                        if !ok </span><span class="cov0" title="0">{
+                                // log.Println("cant cast browser to string")
+                                continue</span>
+                        }
+                        <span class="cov8" title="1">if ok, err := regexp.MatchString("MSIE", browser); ok &amp;&amp; err == nil </span><span class="cov8" title="1">{
+                                isMSIE = true
+                                notSeenBefore := true
+                                for _, item := range seenBrowsers </span><span class="cov8" title="1">{
+                                        if item == browser </span><span class="cov8" title="1">{
+                                                notSeenBefore = false
+                                        }</span>
+                                }
+                                <span class="cov8" title="1">if notSeenBefore </span><span class="cov8" title="1">{
+                                        // log.Printf("SLOW New browser: %s, first seen: %s", browser, user["name"])
+                                        seenBrowsers = append(seenBrowsers, browser)
+                                        uniqueBrowsers++
+                                }</span>
+                        }
+                }
+
+                <span class="cov8" title="1">if !(isAndroid &amp;&amp; isMSIE) </span><span class="cov8" title="1">{
+                        continue</span>
+                }
+
+                // log.Println("Android and MSIE user:", user["name"], user["email"])
+                <span class="cov8" title="1">email := r.ReplaceAllString(user["email"].(string), " [at] ")
+                foundUsers += fmt.Sprintf("[%d] %s &lt;%s&gt;\n", i, user["name"], email)</span>
+        }
+
+        <span class="cov8" title="1">fmt.Fprintln(out, "found users:\n"+foundUsers)
+        fmt.Fprintln(out, "Total unique browsers", len(seenBrowsers))</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">// Code generated by easyjson for marshaling/unmarshaling. DO NOT EDIT.
+
+package data
+
+import (
+        json "encoding/json"
+        easyjson "github.com/mailru/easyjson"
+        jlexer "github.com/mailru/easyjson/jlexer"
+        jwriter "github.com/mailru/easyjson/jwriter"
+)
+
+// suppress unused package warning
+var (
+        _ *json.RawMessage
+        _ *jlexer.Lexer
+        _ *jwriter.Writer
+        _ easyjson.Marshaler
+)
+
+func easyjson794297d0DecodeGithubComSTurchinskiyRomanovCmd3PprofData(in *jlexer.Lexer, out *User) <span class="cov8" title="1">{
+        isTopLevel := in.IsStart()
+        if in.IsNull() </span><span class="cov0" title="0">{
+                if isTopLevel </span><span class="cov0" title="0">{
+                        in.Consumed()
+                }</span>
+                <span class="cov0" title="0">in.Skip()
+                return</span>
+        }
+        <span class="cov8" title="1">in.Delim('{')
+        for !in.IsDelim('}') </span><span class="cov8" title="1">{
+                key := in.UnsafeFieldName(false)
+                in.WantColon()
+                switch key </span>{
+                case "browsers":<span class="cov8" title="1">
+                        if in.IsNull() </span><span class="cov0" title="0">{
+                                in.Skip()
+                                out.Browsers = nil
+                        }</span> else<span class="cov8" title="1"> {
+                                in.Delim('[')
+                                if out.Browsers == nil </span><span class="cov8" title="1">{
+                                        if !in.IsDelim(']') </span><span class="cov8" title="1">{
+                                                out.Browsers = make([]string, 0, 4)
+                                        }</span> else<span class="cov0" title="0"> {
+                                                out.Browsers = []string{}
+                                        }</span>
+                                } else<span class="cov0" title="0"> {
+                                        out.Browsers = (out.Browsers)[:0]
+                                }</span>
+                                <span class="cov8" title="1">for !in.IsDelim(']') </span><span class="cov8" title="1">{
+                                        var v1 string
+                                        if in.IsNull() </span><span class="cov0" title="0">{
+                                                in.Skip()
+                                        }</span> else<span class="cov8" title="1"> {
+                                                v1 = string(in.String())
+                                        }</span>
+                                        <span class="cov8" title="1">out.Browsers = append(out.Browsers, v1)
+                                        in.WantComma()</span>
+                                }
+                                <span class="cov8" title="1">in.Delim(']')</span>
+                        }
+                case "email":<span class="cov8" title="1">
+                        if in.IsNull() </span><span class="cov0" title="0">{
+                                in.Skip()
+                        }</span> else<span class="cov8" title="1"> {
+                                out.Email = string(in.String())
+                        }</span>
+                case "name":<span class="cov8" title="1">
+                        if in.IsNull() </span><span class="cov0" title="0">{
+                                in.Skip()
+                        }</span> else<span class="cov8" title="1"> {
+                                out.Name = string(in.String())
+                        }</span>
+                default:<span class="cov8" title="1">
+                        in.SkipRecursive()</span>
+                }
+                <span class="cov8" title="1">in.WantComma()</span>
+        }
+        <span class="cov8" title="1">in.Delim('}')
+        if isTopLevel </span><span class="cov8" title="1">{
+                in.Consumed()
+        }</span>
+}
+func easyjson794297d0EncodeGithubComSTurchinskiyRomanovCmd3PprofData(out *jwriter.Writer, in User) <span class="cov0" title="0">{
+        out.RawByte('{')
+        first := true
+        _ = first
+        </span><span class="cov0" title="0">{
+                const prefix string = ",\"browsers\":"
+                out.RawString(prefix[1:])
+                if in.Browsers == nil &amp;&amp; (out.Flags&amp;jwriter.NilSliceAsEmpty) == 0 </span><span class="cov0" title="0">{
+                        out.RawString("null")
+                }</span> else<span class="cov0" title="0"> {
+                        out.RawByte('[')
+                        for v2, v3 := range in.Browsers </span><span class="cov0" title="0">{
+                                if v2 &gt; 0 </span><span class="cov0" title="0">{
+                                        out.RawByte(',')
+                                }</span>
+                                <span class="cov0" title="0">out.String(string(v3))</span>
+                        }
+                        <span class="cov0" title="0">out.RawByte(']')</span>
+                }
+        }
+        <span class="cov0" title="0">{
+                const prefix string = ",\"email\":"
+                out.RawString(prefix)
+                out.String(string(in.Email))
+        }</span>
+        <span class="cov0" title="0">{
+                const prefix string = ",\"name\":"
+                out.RawString(prefix)
+                out.String(string(in.Name))
+        }</span>
+        <span class="cov0" title="0">out.RawByte('}')</span>
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v User) MarshalJSON() ([]byte, error) <span class="cov0" title="0">{
+        w := jwriter.Writer{}
+        easyjson794297d0EncodeGithubComSTurchinskiyRomanovCmd3PprofData(&amp;w, v)
+        return w.Buffer.BuildBytes(), w.Error
+}</span>
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v User) MarshalEasyJSON(w *jwriter.Writer) <span class="cov0" title="0">{
+        easyjson794297d0EncodeGithubComSTurchinskiyRomanovCmd3PprofData(w, v)
+}</span>
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *User) UnmarshalJSON(data []byte) error <span class="cov0" title="0">{
+        r := jlexer.Lexer{Data: data}
+        easyjson794297d0DecodeGithubComSTurchinskiyRomanovCmd3PprofData(&amp;r, v)
+        return r.Error()
+}</span>
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *User) UnmarshalEasyJSON(l *jlexer.Lexer) <span class="cov8" title="1">{
+        easyjson794297d0DecodeGithubComSTurchinskiyRomanovCmd3PprofData(l, v)
+}</span>
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package main
+
+import (
+        "bufio"
+        "bytes"
+        "fmt"
+        "io"
+        "log"
+        "os"
+        "regexp"
+        "strings"
+
+        "github.com/mailru/easyjson"
+        "github.com/s-turchinskiy/romanov/cmd/3_pprof/data"
+)
+
+func FastSearch(out io.Writer) <span class="cov8" title="1">{
+        file, err := os.Open(filePath)
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+        <span class="cov8" title="1">r := regexp.MustCompile("@")
+        patternAndroid := regexp.MustCompile("Android")
+        patternMSIE := regexp.MustCompile("MSIE")
+
+        seenBrowsers := []string{}
+        uniqueBrowsers := 0
+        var foundUsersSb strings.Builder
+
+        /*count, err := lineCounter(file)
+        if err != nil {
+                log.Fatal(err)
+        }
+
+        _, err = file.Seek(0, io.SeekStart)
+        if err != nil {
+                log.Fatal(err)
+        }*/
+
+        // users := make([]data.User, 0, count)
+        scanner := bufio.NewScanner(file)
+
+        var i = -1
+        for scanner.Scan() </span><span class="cov8" title="1">{
+                i++
+                var user data.User
+                // fmt.Printf("%v %v\n", err, line)
+                err = easyjson.Unmarshal(scanner.Bytes(), &amp;user)
+                if err != nil </span><span class="cov0" title="0">{
+                        panic(err)</span>
+                }
+                // users = append(users, user)
+
+                <span class="cov8" title="1">isAndroid := false
+                isMSIE := false
+
+                for _, browser := range user.Browsers </span><span class="cov8" title="1">{
+                        if ok := patternAndroid.MatchString(browser); ok </span><span class="cov8" title="1">{
+                                isAndroid = true
+                                notSeenBefore := true
+                                for _, item := range seenBrowsers </span><span class="cov8" title="1">{
+                                        if item == browser </span><span class="cov8" title="1">{
+                                                notSeenBefore = false
+                                        }</span>
+                                }
+                                <span class="cov8" title="1">if notSeenBefore </span><span class="cov8" title="1">{
+                                        // log.Printf("SLOW New browser: %s, first seen: %s", browser, user["name"])
+                                        seenBrowsers = append(seenBrowsers, browser)
+                                        uniqueBrowsers++
+                                }</span>
+                        }
+                }
+
+                <span class="cov8" title="1">for _, browser := range user.Browsers </span><span class="cov8" title="1">{
+                        if ok := patternMSIE.MatchString(browser); ok </span><span class="cov8" title="1">{
+                                isMSIE = true
+                                notSeenBefore := true
+                                for _, item := range seenBrowsers </span><span class="cov8" title="1">{
+                                        if item == browser </span><span class="cov8" title="1">{
+                                                notSeenBefore = false
+                                        }</span>
+                                }
+                                <span class="cov8" title="1">if notSeenBefore </span><span class="cov8" title="1">{
+                                        // log.Printf("SLOW New browser: %s, first seen: %s", browser, user["name"])
+                                        seenBrowsers = append(seenBrowsers, browser)
+                                        uniqueBrowsers++
+                                }</span>
+                        }
+                }
+
+                <span class="cov8" title="1">if !isAndroid || !isMSIE </span><span class="cov8" title="1">{
+                        continue</span>
+                }
+
+                // log.Println("Android and MSIE user:", user["name"], user["email"])
+                <span class="cov8" title="1">email := r.ReplaceAllString(user.Email, " [at] ")
+                _, _ = fmt.Fprintf(&amp;foundUsersSb, "[%d] %s &lt;%s&gt;\n", i, user.Name, email)</span>
+        }
+
+        <span class="cov8" title="1">if err := scanner.Err(); err != nil </span><span class="cov0" title="0">{
+                log.Fatal(err)
+        }</span>
+
+        /*for i, user := range users {
+
+
+        }*/
+
+        <span class="cov8" title="1">_, _ = fmt.Fprintln(out, "found users:\n"+foundUsersSb.String())
+        _, _ = fmt.Fprintln(out, "Total unique browsers", len(seenBrowsers))</span>
+}
+
+// nolint
+func lineCounter(r io.Reader) (int, error) <span class="cov0" title="0">{
+        buf := make([]byte, 32*1024)
+        count := 0
+        lineSep := []byte{'\n'}
+
+        for </span><span class="cov0" title="0">{
+                c, err := r.Read(buf)
+                count += bytes.Count(buf[:c], lineSep)
+
+                switch </span>{
+                case err == io.EOF:<span class="cov0" title="0">
+                        return count, nil</span>
+
+                case err != nil:<span class="cov0" title="0">
+                        return count, err</span>
+                }
+        }
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">//nolint:all
 package main
 
 import (
@@ -506,7 +896,7 @@ func (srv *SearchClient) FindUsers(req models.SearchRequest) (*models.SearchResp
 
         resp, err := client.Do(searcherReq)
         if err != nil </span><span class="cov8" title="1">{
-                if err, ok := err.(net.Error); ok &amp;&amp; err.Timeout() </span><span class="cov0" title="0">{
+                if err, ok := err.(net.Error); ok &amp;&amp; err.Timeout() </span><span class="cov8" title="1">{
                         return nil, fmt.Errorf("timeout for %s", searcherParams.Encode())
                 }</span>
                 <span class="cov8" title="1">return nil, fmt.Errorf("unknown error %s", err)</span>
@@ -522,7 +912,7 @@ func (srv *SearchClient) FindUsers(req models.SearchRequest) (*models.SearchResp
         case http.StatusBadRequest:<span class="cov8" title="1">
                 errResp := models.SearchErrorResponse{}
                 err = json.Unmarshal(body, &amp;errResp)
-                if err != nil </span><span class="cov0" title="0">{
+                if err != nil </span><span class="cov8" title="1">{
                         return nil, fmt.Errorf("cant unpack error json: %s", err)
                 }</span>
                 <span class="cov8" title="1">if errResp.Error == models.ErrorBadOrderField </span><span class="cov8" title="1">{
@@ -533,7 +923,7 @@ func (srv *SearchClient) FindUsers(req models.SearchRequest) (*models.SearchResp
 
         <span class="cov8" title="1">data := []models.User{}
         err = json.Unmarshal(body, &amp;data)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return nil, fmt.Errorf("cant unpack result json: %s", err)
         }</span>
 
@@ -549,7 +939,7 @@ func (srv *SearchClient) FindUsers(req models.SearchRequest) (*models.SearchResp
 }
 </pre>
 		
-		<pre class="file" id="file4" style="display: none">package main
+		<pre class="file" id="file7" style="display: none">package main
 
 import (
         "fmt"
@@ -627,7 +1017,7 @@ func testCasesMain() []testCaseMain <span class="cov0" title="0">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file5" style="display: none">package handlers
+		<pre class="file" id="file8" style="display: none">package handlers
 
 import (
         "context"
@@ -736,7 +1126,7 @@ func (h *Handler) SearchServer(w http.ResponseWriter, r *http.Request) <span cla
 }
 </pre>
 		
-		<pre class="file" id="file6" style="display: none">package service
+		<pre class="file" id="file9" style="display: none">package service
 
 import (
         "errors"
@@ -810,7 +1200,7 @@ func sortDesc(sortType string, clients []models.User) ([]models.User, error) <sp
 }
 </pre>
 		
-		<pre class="file" id="file7" style="display: none">package service
+		<pre class="file" id="file10" style="display: none">package service
 
 import (
         "errors"
@@ -846,7 +1236,7 @@ func (e *ServiceError) Unwrap() error <span class="cov0" title="0">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file8" style="display: none">package xml_repository
+		<pre class="file" id="file11" style="display: none">package xml_repository
 
 import (
         "encoding/xml"
@@ -871,8 +1261,8 @@ type XMLClient struct {
         Picture       string `xml:"picture"`
         Age           int    `xml:"age"`
         EyeColor      string `xml:"eyeColor"`
-        FirstName     string `xml:"first_name"` //nolint:tagliatelle
-        LastName      string `xml:"last_name"`  //nolint:tagliatelle
+        FirstName     string `xml:"first_name"` //nolint:tagliatelle //файл XML менять нельзя
+        LastName      string `xml:"last_name"`  //nolint:tagliatelle //файл XML менять нельзя
         Gender        string `xml:"gender"`
         Company       string `xml:"company"`
         Email         string `xml:"email"`
