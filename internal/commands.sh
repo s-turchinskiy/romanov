@@ -19,3 +19,12 @@ go generate ./data/data.go
 #
 golangci-lint run -c golangci.yml
 
+#escape analisys
+go run -gcflags="all=-m" ./cmd/main.go
+
+#трассировка
+f,_ := os.Create("trace.out")
+trace.Start(f)
+defer trace.Stop()
+
+go tool trace trace.out
